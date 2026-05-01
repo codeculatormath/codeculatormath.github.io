@@ -1,66 +1,89 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
 body {
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #e0e5ec;
-  font-family: Arial;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #e0e5ec; /* Yumuşak arka plan rengi */
 }
 
 .calculator {
-  background: #e0e5ec;
-  padding: 20px;
-  border-radius: 20px;
-  box-shadow: 8px 8px 15px #a3b1c6,
-              -8px -8px 15px #ffffff;
+    width: 320px;
+    padding: 20px;
+    border-radius: 30px;
+    background-color: #e0e5ec;
+    box-shadow: 9px 9px 16px rgb(163,177,198,0.6), 
+                -9px -9px 16px rgba(255,255,255, 0.5);
 }
 
-#display {
-  width: 100%;
-  height: 60px;
-  font-size: 24px;
-  margin-bottom: 15px;
-  border: none;
-  border-radius: 12px;
-  padding: 10px;
-  text-align: right;
-  background: #e0e5ec;
-  box-shadow: inset 5px 5px 10px #a3b1c6,
-              inset -5px -5px 10px #ffffff;
+.display {
+    margin-bottom: 20px;
+}
+
+#screen {
+    width: 100%;
+    height: 60px;
+    border: none;
+    outline: none;
+    background-color: #e0e5ec;
+    border-radius: 10px;
+    box-shadow: inset 6px 6px 12px #b8bec5, 
+                inset -6px -6px 12px #ffffff;
+    text-align: right;
+    padding: 20px;
+    font-size: 1.5rem;
+    color: #444;
 }
 
 .buttons {
-  display: grid;
-  grid-template-columns: repeat(4, 60px);
-  gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
 }
 
-button {
-  height: 60px;
-  font-size: 18px;
-  border: none;
-  border-radius: 12px;
-  background: #e0e5ec;
-  box-shadow: 5px 5px 10px #a3b1c6,
-              -5px -5px 10px #ffffff;
-  cursor: pointer;
-  transition: 0.2s;
+.btn {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    border: none;
+    outline: none;
+    background-color: #e0e5ec;
+    box-shadow: 5px 5px 10px #b8bec5, 
+                -5px -5px 10px #ffffff;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: #555;
+    transition: all 0.2s ease;
 }
 
-button:active {
-  box-shadow: inset 5px 5px 10px #a3b1c6,
-              inset -5px -5px 10px #ffffff;
+.btn:active {
+    box-shadow: inset 3px 3px 6px #b8bec5, 
+                inset -3px -3px 6px #ffffff;
+}
+
+.operator {
+    color: #6d5dfc;
+    font-weight: bold;
+}
+
+.clear {
+    color: #ff5e5e;
 }
 
 .equal {
-  grid-row: span 2;
-  height: 130px;
-  background: #4c8bf5;
-  color: white;
+    background-color: #6d5dfc;
+    color: white;
+    grid-row: span 2;
+    height: 125px;
+    border-radius: 30px;
 }
 
 .zero {
-  grid-column: span 2;
-  width: 130px;
+    grid-column: span 1;
 }
