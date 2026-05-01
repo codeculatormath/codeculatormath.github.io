@@ -4,81 +4,112 @@
   box-sizing: border-box;
 }
 
-html {
-  font-size: 10px;
-}
-
 body {
-  font-size: 1.2rem;
-  background-color: #ccc;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-family: system-ui, Arial;
+
+  /* 🔥 grimsi siyah arka plan */
+  background: #1e1f22;
 }
 
+/* calculator ana kutu */
 .calculator {
-  border: 1px solid #ccc;
-  border-radius: 1.5rem;
-  width: 400px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: #030303;
+  width: 360px;
+  padding: 18px;
+
+  border-radius: 22px;
+
+  /* koyu gri */
+  background: #2a2c31;
+
+  box-shadow: 0 25px 60px rgba(0,0,0,0.4);
 }
 
+/* ekran */
 .calculator-input {
   width: 100%;
-  font-size: 4rem;
-  height: 70px;
+  height: 80px;
+
   border: none;
-  color: #FFF;
+  outline: none;
+
+  border-radius: 16px;
+
+  background: #1f2125;
+
+  color: #ffffff;
+
+  font-size: 34px;
   text-align: right;
-  padding: 0 20px;
+
+  padding: 10px 15px;
 }
 
+/* grid */
+.calculator-keys {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+
+  margin-top: 15px;
+}
+
+/* tüm tuşlar */
 button {
-  height: 50px;
-  background-color: #353637;
-  border-radius: 3rem;
+  height: 58px;
+
   border: none;
-  font-size: 2.7rem;
-  color: #FFF;
+  border-radius: 14px;
+
+  font-size: 20px;
+
+  background: #d6d8dd; /* açık gri */
+  color: #1c1d20;
+
+  cursor: pointer;
+
+  transition: 0.15s;
 }
 
 button:hover {
-  background-color: #a3a5aa;
+  transform: translateY(-2px);
+  background: #c9cbd1;
 }
 
+/* 🔥 işlem tuşları (turuncu) */
 .operator {
-  color: #FFF;
-  background-color: #f99003;
+  background: #ff8c2a;
+  color: white;
 }
 
 .operator:hover {
-  background-color: hsl(34, 99%, 65%);
+  background: #ff9f4d;
 }
 
+/* clear */
 .clear {
-  background-color: #a3a5aa;
+  background: #aab0ba;
   color: #fff;
 }
 
 .clear:hover {
-  background-color: hsl(223, 2%, 80%);
+  background: #959ca8;
 }
 
+/* eşittir */
 .equal-sign {
-  background-color: #f99003;
-  color: #fff;
-  height: 100%;
-  grid-area: 2/4/6/5;
+  grid-column: span 4;
+
+  background: #ff8c2a;
+  color: white;
+
+  font-weight: 600;
 }
 
 .equal-sign:hover {
-  background-color: hsl(34, 99%, 65%);
-}
-
-.calculator-keys {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-gap: 20px;
-  padding: 20px;
+  background: #ff9f4d;
 }
