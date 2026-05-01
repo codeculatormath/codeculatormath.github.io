@@ -1,6 +1,6 @@
 {
-  "toplama": "1987",
-  "cikarma": "1993",
-  "akis_semasi": "2009",
-  "carpma": "2015",
+  "1987": "matematik/toplama.html",
+  "1993": "matematik/cikarma.html",
+  "2009": "matematik/akis_semasi.html",
+  "2015": "matematik/carpma.html"
 }
