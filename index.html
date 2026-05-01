@@ -3,38 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soft Pastel Calculator</title>
+    <title>Soft Easter Egg Calculator</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="calculator">
-    <!-- Yazıların net görünmesi için CSS ile burayı destekleyeceğiz -->
-    <input type="text" id="display" disabled="" placeholder="0">
+    <!-- Readonly sayesinde yazılar net görünür ve bug yapmaz -->
+    <input type="text" class="calculator-input" readonly placeholder="0">
 
-    <div class="buttons">
-        <button onclick="clearDisplay()" class="special">C</button>
-        <button onclick="append('/')" class="operator">/</button>
-        <button onclick="append('*')" class="operator">*</button>
-        <button onclick="deleteLast()" class="special">⌫</button>
+    <div class="calculator-keys">
+        <button type="button" value="clear" class="btn-clear">C</button>
+        <button type="button" value="/">/</button>
+        <button type="button" value="*">*</button>
+        <button type="button" value="delete">⌫</button>
 
-        <button onclick="append('7')">7</button>
-        <button onclick="append('8')">8</button>
-        <button onclick="append('9')">9</button>
-        <button onclick="append('-')" class="operator">-</button>
+        <button type="button" value="7">7</button>
+        <button type="button" value="8">8</button>
+        <button type="button" value="9">9</button>
+        <button type="button" value="-">-</button>
 
-        <button onclick="append('4')">4</button>
-        <button onclick="append('5')">5</button>
-        <button onclick="append('6')">6</button>
-        <button onclick="append('+')" class="operator">+</button>
+        <button type="button" value="4">4</button>
+        <button type="button" value="5">5</button>
+        <button type="button" value="6">6</button>
+        <button type="button" value="+">+</button>
 
-        <button onclick="append('1')">1</button>
-        <button onclick="append('2')">2</button>
-        <button onclick="append('3')">3</button>
-        <button onclick="calculate()" class="equal">=</button>
+        <button type="button" value="1">1</button>
+        <button type="button" value="2">2</button>
+        <button type="button" value="3">3</button>
+        <button type="button" value="=" class="btn-equal">=</button>
 
-        <button onclick="append('0')" class="zero">0</button>
-        <button onclick="append('.')">.</button>
+        <button type="button" value="0" class="btn-zero">0</button>
+        <button type="button" value=".">.</button>
     </div>
 </div>
 
