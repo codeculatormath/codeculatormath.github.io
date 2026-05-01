@@ -10,30 +10,33 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #e8ebf3; /* Yumuşak grimsi mavi arka plan */
+    /* Koyu antrasit arka plan */
+    background-color: #1a1a1a;
 }
 
 .calculator {
-    background: #e8ebf3;
-    padding: 30px;
-    border-radius: 45px;
-    box-shadow: 20px 20px 60px #c5c9cf, -20px -20px 60px #ffffff;
-    width: 350px;
+    /* Karanlık softluk (Neumorphism Dark) */
+    background: #1a1a1a;
+    padding: 25px;
+    border-radius: 40px;
+    box-shadow: 10px 10px 20px #0d0d0d, -10px -10px 20px #272727;
+    width: 340px;
 }
 
 .calculator-input {
     width: 100%;
     height: 85px;
     border: none;
-    background: #e8ebf3;
+    outline: none;
+    /* İçe doğru gömülmüş koyu ekran */
+    background: #1a1a1a;
     border-radius: 20px;
     margin-bottom: 25px;
     padding: 0 25px;
     font-size: 2.2rem;
     text-align: right;
-    color: #444; /* Net okunur koyu gri */
-    outline: none;
-    box-shadow: inset 8px 8px 16px #c5c9cf, inset -8px -8px 16px #ffffff;
+    color: #00d1b2; /* Neon yeşil/mavi arası okunaklı bir yazı rengi */
+    box-shadow: inset 6px 6px 12px #0d0d0d, inset -6px -6px 12px #272727;
 }
 
 .calculator-keys {
@@ -44,34 +47,49 @@ body {
 
 button {
     height: 60px;
-    border-radius: 20px;
+    border-radius: 18px;
     border: none;
-    background: #e8ebf3;
-    box-shadow: 6px 6px 12px #c5c9cf, -6px -6px 12px #ffffff;
+    background: #1a1a1a;
+    /* Dışa doğru yumuşak çıkıntı */
+    box-shadow: 6px 6px 12px #0d0d0d, -6px -6px 12px #272727;
     font-size: 1.2rem;
     font-weight: 600;
-    color: #666;
+    color: #bbb;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease;
 }
 
-button:hover {
-    color: #333;
-    transform: translateY(-2px);
-}
-
+/* Basıldığında içeri çökme efekti */
 button:active {
-    box-shadow: inset 4px 4px 8px #c5c9cf, inset -4px -4px 8px #ffffff;
-    transform: translateY(1px);
+    box-shadow: inset 4px 4px 8px #0d0d0d, inset -4px -4px 8px #272727;
+    transform: scale(0.96);
+    color: #fff;
 }
 
-.btn-clear { color: #ff6b6b; }
-.btn-equal { 
-    background: #a29bfe; 
-    color: white; 
-    grid-row: span 2; 
+/* Operatörler için soft bir renk */
+button[value="/"], button[value="*"], button[value="-"], button[value="+"] {
+    color: #ff9f43;
+}
+
+/* Temizle butonu */
+button[value="clear"] {
+    color: #ff5e5e;
+}
+
+/* Eşittir butonu - Karanlıkta parlayan stil */
+button[value="="] {
+    background: linear-gradient(145deg, #2c2c2c, #111111);
+    color: #00d1b2;
+    grid-row: span 2;
     height: 135px;
-    box-shadow: 5px 5px 15px rgba(162, 155, 254, 0.4);
 }
 
-.btn-zero { grid-column: span 1; }
+button[value="delete"] {
+    color: #74b9ff;
+}
+
+/* Hover efekti */
+button:hover:not([value="="]) {
+    color: #fff;
+    background: #1e1e1e;
+}
