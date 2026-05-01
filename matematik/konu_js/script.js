@@ -1,64 +1,85 @@
 document.addEventListener("DOMContentLoaded", function() {
     const display = document.getElementById("display");
     const keys = document.querySelector(".calculator-keys");
+    const calcScreen = document.getElementById("calc-screen");
+    const gameScreen = document.getElementById("game-screen");
+    const gameFrame = document.getElementById("game-frame");
 
     let codes = {};
-    fetch("matematik/pi_sayisi.json")
-        .then(res => res.json())
-        .then(data => { codes = data; });
 
-    function showDevMenu() {
-        if(document.getElementById("dev-menu")) return;
-        const menu = document.createElement("div");
-        menu.id = "dev-menu";
-        menu.classList.add("menu-show");
-        
-        let assets = "";
-        Object.keys(codes).forEach(key => {
-            assets += `<div class="asset-item">[LOCAL_FILE] Code: ${key} -> /matematik/${codes[key]}</div>`;
+    // JSON ÇEKME - En sağlam yol
+    fetch("../pi_sayisi.json") // script.js konu_js içinde olduğu için ../ ile matematik klasörüne çıkar
+        .then(res => {
+            if (!res.ok) throw new Error("JSON Bulunamadı");
+            return res.json();
+        })
+        .then(data => { 
+            codes = data; 
+            console.log("Sistem hazır.");
+        })
+        .catch(err => {
+            // Alternatif yol (Eğer üstteki klasör yapısı tutmazsa)
+            fetch("matematik/pi_sayisi.json")
+                .then(res => res.json())
+                .then(data => { codes = data; });
         });
 
-        menu.innerHTML = `
-            <div class="menu-content">
-                <div class="menu-header">SYSTEM_CORE_DUMP v4.0</div>
-                <div class="asset-grid">${assets}</div>
-                <button class="exit-btn" onclick="this.parentElement.parentElement.remove()">TERMINATE_SESSION</button>
-            </div>`;
-        document.body.appendChild(menu);
+    function calculate() {
+        let val = display.value;
+
+        // 1. GİZLİ MENÜ (Geliştirici Seçeneği)
+        if (val === "123456+2" || val === "123458") {
+            display.value = "INTERNAL_ERROR";
+            // İstersen buraya showDevMenu() fonksiyonunu geri ekleyebilirsin
+            return;
+        }
+
+        // 2. JSON KOD KONTROLÜ (HTML Arası Geçiş)
+        if (codes[val]) {
+            // [object Object] hatasını önlemek için .file ekliyoruz
+            let targetFile = codes[val].file; 
+
+            calcScreen.style.display = "none"; 
+            gameScreen.style.display = "block";
+            gameFrame.src = targetFile; // index.html'e göre yol alır
+            
+            display.value = "";
+            return;
+        }
+
+        // 3. NORMAL HESAPLAMA
+        try {
+            let sanitized = val.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+            display.value = eval(sanitized);
+        } catch {
+            display.value = "Error";
+        }
     }
 
+    // BUTON OLAYLARI
     keys.addEventListener("click", (e) => {
         const target = e.target;
         if (!target.matches("button")) return;
-
         const val = target.value;
 
-        // 1. Eşittir Kontrolü
         if (val === "=") {
-            if (display.value === "123456+2" || display.value === "123458") {
-                showDevMenu();
-                display.value = "INTERNAL_ERROR";
-            } else if (codes[display.value]) {
-                window.location.href = "matematik/" + codes[display.value];
-            } else {
-                try {
-                    let sanitized = display.value.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
-                    display.value = eval(sanitized);
-                } catch { display.value = "Error"; }
-            }
-        } 
-        // 2. Temizleme
-        else if (val === "clear") {
+            calculate();
+        } else if (val === "clear") {
             display.value = "";
-        } 
-        // 3. SİLME (Burada display.value += val çalışmaz, o yüzden "delete" yazamaz)
-        else if (val === "delete") {
+        } else if (val === "delete") {
             display.value = display.value.slice(0, -1);
-        } 
-        // 4. Sayılar ve Diğerleri
-        else {
+        } else {
             display.value += val;
         }
         display.focus();
+    });
+
+    // ESC İLE GERİ DÖNÜŞ
+    document.addEventListener("keydown", function(e) {
+        if (e.key === "Escape") {
+            gameScreen.style.display = "none";
+            calcScreen.style.display = "flex";
+            gameFrame.src = ""; 
+        }
     });
 });
