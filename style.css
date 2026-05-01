@@ -1,130 +1,84 @@
 :root {
-    /* Gece Modu Renkleri (Varsayılan) */
-    --bg-body: #000000;
-    --bg-calc: #000000;
-    --color-text: #ffffff;
-    --key-bg: #333333; /* Rakamlar */
-    --key-text: #ffffff;
-    --key-grey: #a5a5a5; /* AC, Silme, Yüzde */
-    --key-grey-text: #000000;
-    --key-orange: #ff9f0a; /* Operatörler */
+    --bg-body: #000; --bg-calc: #000; --text: #fff;
+    --key-bg: #333; --key-orange: #ff9f0a; --key-grey: #a5a5a5;
 }
-
-/* Gündüz Modu Renkleri */
 [data-theme="light"] {
-    --bg-body: #f2f2f7;
-    --bg-calc: #ffffff;
-    --color-text: #000000;
-    --key-bg: #e5e5e5;
-    --key-text: #000000;
-    --key-grey: #d1d1d6;
-    --key-grey-text: #000000;
-    --key-orange: #ff9f0a;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    --bg-body: #f2f2f7; --bg-calc: #fff; --text: #000;
+    --key-bg: #e5e5e5; --key-grey: #d1d1d6;
 }
 
 body {
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: var(--bg-body);
-    transition: background-color 0.3s ease;
+    height: 100vh; display: flex; justify-content: center; align-items: center;
+    background-color: var(--bg-body); transition: 0.3s; margin: 0;
+}
+
+/* Tema Butonu Sol Alt */
+.theme-toggle {
+    position: fixed; left: 20px; bottom: 20px; z-index: 100;
+}
+#theme-btn {
+    background: var(--key-bg); color: var(--text); border: none;
+    width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 1.2rem;
 }
 
 .calculator {
-    width: 330px;
-    background-color: var(--bg-calc);
-    padding: 20px;
-    border-radius: 40px;
-    transition: 0.3s;
+    width: 330px; background: var(--bg-calc); padding: 20px; border-radius: 40px;
 }
 
-/* Gece/Gündüz Butonu Tasarımı */
-.theme-toggle {
-    text-align: right;
-    margin-bottom: 5px;
-}
-
-#theme-btn {
-    background: var(--key-bg);
-    border: none;
-    color: var(--color-text);
-    padding: 8px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.9rem;
-}
-
-/* Ekran (Input) Kısmı */
 .calculator-input {
-    width: 100%;
-    height: 120px;
-    border: none;
-    background: transparent;
-    color: var(--color-text);
-    font-size: 4.5rem;
-    text-align: right;
-    padding: 10px;
-    outline: none;
-    font-weight: 300;
+    width: 100%; height: 100px; border: none; background: transparent;
+    color: var(--text); font-size: 4rem; text-align: right; outline: none;
 }
 
-/* Tuş Takımı Izgarası */
-.calculator-keys {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-}
+.calculator-keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 
-/* Genel Buton Yapısı */
 .key {
-    height: 72px;
-    width: 72px;
-    border-radius: 50%;
-    border: none;
-    background-color: var(--key-bg);
-    color: var(--key-text);
-    font-size: 1.8rem;
-    cursor: pointer;
-    transition: filter 0.2s;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    height: 72px; width: 72px; border-radius: 50%; border: none;
+    background: var(--key-bg); color: var(--text); font-size: 1.5rem; cursor: pointer;
+}
+.key.orange { background: var(--key-orange); color: #fff; }
+.key.grey { background: var(--key-grey); color: #000; }
+.key.double { grid-column: span 2; width: 156px; border-radius: 40px; text-align: left; padding-left: 25px; }
+
+/* --- KÖŞELİ (CORNER) GİZLİ MENÜ --- */
+#dev-menu {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.98); display: flex; justify-content: center; align-items: center; z-index: 1000;
 }
 
-.key:active {
-    filter: brightness(1.5); /* Basıldığında rengi açılır */
+.menu-content {
+    background: #000; border: 2px solid #00ff41; padding: 0;
+    width: 90%; max-width: 500px; border-radius: 0; /* Köşeli yaptık */
+    font-family: 'Courier New', monospace; box-shadow: 0 0 30px rgba(0,255,65,0.3);
 }
 
-/* Özel Renkli Butonlar */
-.key.grey {
-    background-color: var(--key-grey);
-    color: var(--key-grey-text);
+.menu-header {
+    background: #00ff41; color: #000; padding: 10px;
+    display: flex; justify-content: space-between; font-weight: bold;
 }
 
-.key.orange {
-    background-color: var(--key-orange);
-    color: #ffffff;
+.asset-grid { padding: 20px; color: #00ff41; max-height: 300px; overflow-y: auto; }
+
+.asset-item { margin-bottom: 15px; font-size: 0.85rem; border-left: 3px solid #00ff41; padding-left: 10px; }
+.asset-tag { color: #ff9f0a; margin-right: 10px; }
+
+.menu-footer { padding: 10px; border-top: 1px solid #333; }
+.exit-btn {
+    width: 100%; background: transparent; border: 1px solid #ff3b30;
+    color: #ff3b30; padding: 10px; cursor: pointer; font-weight: bold;
 }
 
-/* Sıfır (0) Butonu Genişliği */
-.key.double {
-    grid-column: span 2;
-    width: 156px;
-    border-radius: 40px;
-    justify-content: flex-start;
-    padding-left: 28px;
-}
+/* Animasyonlar */
+.menu-show { animation: cornerIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+.menu-hide { animation: cornerOut 0.4s ease-in forwards; }
 
-/* Input Placeholder Rengi */
-::placeholder {
-    color: var(--key-grey);
-    opacity: 0.5;
+@keyframes cornerIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
+@keyframes cornerOut {
+    from { transform: scale(1); opacity: 1; }
+    to { transform: scale(0); opacity: 0; }
+}
+.blink { animation: blink 1s infinite; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
