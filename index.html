@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Hesap Makinesi</title>
+
+<style>
+body {
+  background:#111;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  font-family:Arial;
+}
+
+.calc {
+  width:300px;
+  background:#222;
+  padding:20px;
+  border-radius:10px;
+}
+
+#display {
+  width:100%;
+  height:50px;
+  font-size:22px;
+  text-align:right;
+  margin-bottom:10px;
+}
+
+button {
+  width:23%;
+  margin:1%;
+  padding:15px;
+  font-size:18px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="calc">
+  <input id="display" readonly>
+
+  <div>
+    <button onclick="add('7')">7</button>
+    <button onclick="add('8')">8</button>
+    <button onclick="add('9')">9</button>
+    <button onclick="add('/')">/</button>
+
+    <button onclick="add('4')">4</button>
+    <button onclick="add('5')">5</button>
+    <button onclick="add('6')">6</button>
+    <button onclick="add('*')">*</button>
+
+    <button onclick="add('1')">1</button>
+    <button onclick="add('2')">2</button>
+    <button onclick="add('3')">3</button>
+    <button onclick="add('-')">-</button>
+
+    <button onclick="add('0')">0</button>
+    <button onclick="add('+')">+</button>
+    <button onclick="clearD()">C</button>
+    <button onclick="calc()">=</button>
+  </div>
+</div>
+
+<script>
+let display = document.getElementById("display");
+let codes = {};
+
+// JSON çek
+fetch("matematik/pi_sayisi.json")
+  .then(r => r.json())
+  .then(data => codes = data);
+
+function add(val){
+  display.value += val;
+}
+
+function clearD(){
+  display.value = "";
+}
+
+function calc(){
+  let input = display.value;
+
+  // 🔥 EASTER EGG KONTROL
+  if(codes[input]){
+    window.location.href = "matematik/" + codes[input];
+    return;
+  }
+
+  // normal hesap
+  try {
+    display.value = eval(input);
+  } catch {
+    display.value = "Hata";
+  }
+}
+</script>
+
+</body>
+</html>
