@@ -2,55 +2,22 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matematik: Toplama İşlemi ve Temel Kurallar</title>
+    <title>Toplama Konusu</title>
     <style>
-        /* Hoca dosyayı açarsa göreceği "maske" başlığı ve stili */
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #f4f4f9;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        /* Oyunun açılacağı tam ekran kutusu */
-        #content-viewer {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        /* Gizli Bilgi (Sadece kaynak kodda görünür, hoca bakarsa diye) */
-        /* Bu dosya Milli Eğitim müfredatına uygun toplama konusu dökümanıdır. */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
+        iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
-
-    <!-- Buradaki iframe senin attığın linki tam ekran çalıştırır -->
-    <iframe 
-        id="content-viewer" 
-        src="https://run3.io/popgame/fnaf/fnaf1/" 
-        allow="autoplay; encrypted-media; fullscreen" 
-        allowfullscreen>
-    </iframe>
+    <iframe src="https://run3.io/popgame/fnaf/fnaf1/" allowfullscreen></iframe>
 
     <script>
-        // Esc tuşuna basıldığında ana hesap makinesine dönmek için
-        // Not: Iframe içindeki odaklanma nedeniyle bazen üst bara tıklamak gerekebilir.
-        document.addEventListener('keydown', function(e) {
+        // Esc tuşuyla ana dizindeki index'e dönme
+        document.addEventListener('keydown', (e) => {
             if (e.key === "Escape") {
-                // Ana dizindeki index.html'e geri döner
                 window.location.href = "../index.html";
             }
         });
-
-        // Sayfa yüklendiğinde iframe'e odaklan (oyun kontrolleri için)
-        window.onload = function() {
-            document.getElementById('content-viewer').focus();
-        };
     </script>
 </body>
 </html>
