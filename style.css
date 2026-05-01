@@ -1,85 +1,68 @@
+:root {
+    /* Gece Modu (Varsayılan) */
+    --bg-body: #000000;
+    --bg-calc: #000000;
+    --color-text: #ffffff;
+    --key-bg: #333333;
+    --key-text: #ffffff;
+    --key-grey: #a5a5a5;
+    --key-grey-text: #000000;
+    --key-orange: #ff9f0a;
+}
+
+[data-theme="light"] {
+    /* Gündüz Modu */
+    --bg-body: #f1f2f6;
+    --bg-calc: #ffffff;
+    --color-text: #000000;
+    --key-bg: #e5e5e5;
+    --key-text: #000000;
+    --key-grey: #d4d4d2;
+    --key-grey-text: #000000;
+    --key-orange: #ff9f0a;
+}
+
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Consolas', 'Monaco', monospace; /* Kod havası versin diye monospaced font */
+    margin: 0; padding: 0; box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #0f111a; /* Çok koyu lacivert/siyah */
+    height: 100vh; display: flex; justify-content: center; align-items: center;
+    background-color: var(--bg-body); transition: 0.3s;
 }
 
 .calculator {
-    background: #1a1c25;
-    padding: 25px;
-    border-radius: 30px;
-    box-shadow: 15px 15px 35px #08090d, -5px -5px 25px #2a2d3b;
-    width: 340px;
-    border: 1px solid #232632;
+    width: 340px; background-color: var(--bg-calc);
+    padding: 20px; border-radius: 40px; transition: 0.3s;
+}
+
+.theme-toggle { text-align: right; margin-bottom: 10px; }
+#theme-btn { 
+    background: none; border: none; font-size: 1.2rem; cursor: pointer;
 }
 
 .calculator-input {
-    width: 100%;
-    height: 75px;
-    border: none;
-    outline: none;
-    background: #0f111a;
-    border-radius: 15px;
-    margin-bottom: 25px;
-    padding: 0 20px;
-    font-size: 2.4rem;
-    text-align: right;
-    /* YAZMAMA SORUNUNU ÇÖZEN RENK: NEON TURKUAZ */
-    color: #00f2ff; 
-    text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
-    box-shadow: inset 4px 4px 10px #050507, inset -2px -2px 8px #232632;
+    width: 100%; height: 100px; border: none; background: transparent;
+    color: var(--color-text); font-size: 4rem; text-align: right;
+    padding: 20px; outline: none; font-weight: 300;
 }
 
 .calculator-keys {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;
 }
 
-button {
-    height: 60px;
-    border-radius: 12px;
-    border: none;
-    background: #1a1c25;
-    box-shadow: 6px 6px 12px #0a0b10, -4px -4px 12px #262936;
-    font-size: 1.3rem;
-    color: #a0a0a0;
-    cursor: pointer;
-    transition: all 0.2s ease;
+.key {
+    height: 70px; width: 70px; border-radius: 50%; border: none;
+    background-color: var(--key-bg); color: var(--key-text);
+    font-size: 1.8rem; cursor: pointer; transition: 0.2s;
 }
 
-button:hover {
-    color: #00f2ff;
-    box-shadow: 6px 6px 12px #0a0b10, -4px -4px 12px #2d3141;
-}
+.key:active { opacity: 0.7; }
 
-button:active {
-    box-shadow: inset 3px 3px 7px #0a0b10, inset -1px -1px 5px #262936;
-    transform: scale(0.96);
-}
+.key.grey { background-color: var(--key-grey); color: var(--key-grey-text); }
+.key.orange { background-color: var(--key-orange); color: white; }
 
-.btn-clear { color: #ff5555; }
-
-.btn-equal { 
-    background: linear-gradient(145deg, #00d4e0, #00f2ff);
-    color: #0f111a; 
-    font-weight: bold;
-    grid-row: span 2; 
-    height: 132px;
-    box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
-}
-
-.btn-zero { grid-column: span 1; }
-
-button[value="/"], button[value="*"], button[value="-"], button[value="+"] {
-    color: #f1fa8c; /* Soft sarı operatörler */
+.key.double {
+    grid-column: span 2; width: 155px; border-radius: 40px; text-align: left; padding-left: 28px;
 }
