@@ -4,7 +4,6 @@
     <title>Codeculation | Flappy Arcade</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-    <!-- Yeni ikon linki eklendi -->
     <link rel="icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo-MxQMBxtjT4lTIt5NpIID2njAAk813g7Bw&s" />
     
     <style>
@@ -14,7 +13,6 @@
             display: flex; justify-content: center; align-items: center;
         }
         canvas {
-            image-rendering: -moz-crisp-edges;
             image-rendering: pixelated;
             width: 100vw; 
             height: 100vh;
@@ -37,10 +35,10 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// Oyun Değişkenleri
+// Oyun Ayarları
 let gravity = 0.28;
 let jump = -4.8;
-let pipeWidth = 60;
+let pipeWidth = 52; // Görsel genişliği ile uyumlu
 let pipeGap = 160;
 let pipeSpeed = 2.5;
 let score = 0;
@@ -53,10 +51,13 @@ const hitSound = new Audio("https://www.soundjay.com/buttons/sounds/button-10.mp
 
 // Görseller
 const birdImg = new Image();
-birdImg.src = "https://i.ibb.co/30X9X9f/flappy-bird.png"; 
+birdImg.src = "http://s2js.com/img/etc/flappybird.png"; 
 
 const bgImg = new Image();
-bgImg.src = "https://i.ibb.co/S6D9X3p/flappy-bg.png";
+bgImg.src = "http://s2js.com/img/etc/flappyback.png";
+
+const pipeImg = new Image();
+pipeImg.src = "http://s2js.com/img/etc/flappypipe.png"; // Yeni boru görseli
 
 let bird = { x: 80, y: canvas.height / 2, w: 40, h: 30, velocity: 0, rotation: 0 };
 let pipes = [];
@@ -136,29 +137,18 @@ function draw() {
     ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
 
     pipes.forEach(pipe => {
-        // Boru Gövdesi
-        ctx.fillStyle = "#73BF2E";
-        ctx.strokeStyle = "#000";
-        ctx.lineWidth = 3;
-        
-        // Üst Boru
-        ctx.fillRect(pipe.x, 0, pipeWidth, pipe.y);
-        ctx.strokeRect(pipe.x, -5, pipeWidth, pipe.y + 5);
-        // Üst Baca
-        ctx.fillStyle = "#528026";
-        ctx.fillRect(pipe.x - 5, pipe.y - 25, pipeWidth + 10, 25);
-        ctx.strokeRect(pipe.x - 5, pipe.y - 25, pipeWidth + 10, 25);
+        // Üst Boruyu Çiz (Ters çevrilmiş şekilde)
+        ctx.save();
+        ctx.translate(pipe.x + pipeWidth / 2, pipe.y / 2);
+        ctx.scale(1, -1);
+        ctx.drawImage(pipeImg, -pipeWidth / 2, -pipe.y / 2, pipeWidth, pipe.y);
+        ctx.restore();
 
-        // Alt Boru
-        ctx.fillStyle = "#73BF2E";
-        ctx.fillRect(pipe.x, pipe.y + pipeGap, pipeWidth, canvas.height);
-        ctx.strokeRect(pipe.x, pipe.y + pipeGap, pipeWidth, canvas.height);
-        // Alt Baca
-        ctx.fillStyle = "#528026";
-        ctx.fillRect(pipe.x - 5, pipe.y + pipeGap, pipeWidth + 10, 25);
-        ctx.strokeRect(pipe.x - 5, pipe.y + pipeGap, pipeWidth + 10, 25);
+        // Alt Boruyu Çiz
+        ctx.drawImage(pipeImg, pipe.x, pipe.y + pipeGap, pipeWidth, canvas.height - (pipe.y + pipeGap));
     });
 
+    // Kuşu çiz
     ctx.save();
     ctx.translate(bird.x + bird.w / 2, bird.y + bird.h / 2);
     ctx.rotate(bird.rotation);
