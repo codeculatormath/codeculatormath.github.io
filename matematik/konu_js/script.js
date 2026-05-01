@@ -4,33 +4,43 @@ document.addEventListener("DOMContentLoaded", function() {
     const themeBtn = document.getElementById("theme-btn");
     const html = document.documentElement;
 
+    // Easter Egg verileri
     let codes = {};
-    fetch("matematik/pi_sayisi.json").then(res => res.json()).then(data => { codes = data; });
+    fetch("matematik/pi_sayisi.json")
+        .then(res => res.json())
+        .then(data => { codes = data; })
+        .catch(() => console.log("JSON bulunamadı."));
 
-    // GECE - GÜNDÜZ MODU
-    themeBtn.addEventListener("click", () => {
+    // TEMA DEĞİŞTİRME (Gece/Gündüz)
+    themeBtn.addEventListener("click", function() {
         const currentTheme = html.getAttribute("data-theme");
-        html.setAttribute("data-theme", currentTheme === "dark" ? "light" : "dark");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+        html.setAttribute("data-theme", newTheme);
     });
 
-    // HESAPLAMA
+    // HESAPLAMA FONKSİYONU
     function calculate() {
         let val = display.value;
+        if (!val) return;
+
+        // Easter Egg Kontrol
         if (codes[val]) {
             window.location.href = "matematik/" + codes[val];
             return;
         }
+
         try {
-            // Güvenli hesaplama için işaretleri düzeltelim
-            let result = eval(val.replace('×', '*').replace('÷', '/').replace('−', '-'));
+            // iOS işaretlerini standart operatörlere çevirip hesapla
+            let sanitizedVal = val.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/,/g, '.');
+            let result = eval(sanitizedVal);
             display.value = result;
-        } catch {
-            display.value = "Error";
+        } catch (e) {
+            display.value = "Hata";
         }
     }
 
-    // KLAVYE DESTEĞİ
-    display.addEventListener("keydown", (e) => {
+    // KLAVYE DESTEĞİ (Enter tuşu)
+    display.addEventListener("keydown", function(e) {
         if (e.key === "Enter") {
             e.preventDefault();
             calculate();
@@ -38,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // BUTON TIKLAMA
-    keys.addEventListener("click", (e) => {
+    keys.addEventListener("click", function(e) {
         const target = e.target;
         if (!target.matches("button")) return;
 
@@ -53,6 +63,6 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             display.value += val;
         }
-        display.focus(); // Tıklayınca yazmaya devam edebilmek için odağı koru
+        display.focus(); 
     });
 });
