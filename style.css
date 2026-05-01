@@ -1,115 +1,66 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
+  margin: 0;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-
-  font-family: system-ui, Arial;
-
-  /* 🔥 grimsi siyah arka plan */
-  background: #1e1f22;
+  background: #e0e5ec;
+  font-family: Arial;
 }
 
-/* calculator ana kutu */
 .calculator {
-  width: 360px;
-  padding: 18px;
-
-  border-radius: 22px;
-
-  /* koyu gri */
-  background: #2a2c31;
-
-  box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+  background: #e0e5ec;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 8px 8px 15px #a3b1c6,
+              -8px -8px 15px #ffffff;
 }
 
-/* ekran */
-.calculator-input {
+#display {
   width: 100%;
-  height: 80px;
-
+  height: 60px;
+  font-size: 24px;
+  margin-bottom: 15px;
   border: none;
-  outline: none;
-
-  border-radius: 16px;
-
-  background: #1f2125;
-
-  color: #ffffff;
-
-  font-size: 34px;
+  border-radius: 12px;
+  padding: 10px;
   text-align: right;
-
-  padding: 10px 15px;
+  background: #e0e5ec;
+  box-shadow: inset 5px 5px 10px #a3b1c6,
+              inset -5px -5px 10px #ffffff;
 }
 
-/* grid */
-.calculator-keys {
+.buttons {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-
-  margin-top: 15px;
+  grid-template-columns: repeat(4, 60px);
+  gap: 10px;
 }
 
-/* tüm tuşlar */
 button {
-  height: 58px;
-
+  height: 60px;
+  font-size: 18px;
   border: none;
-  border-radius: 14px;
-
-  font-size: 20px;
-
-  background: #d6d8dd; /* açık gri */
-  color: #1c1d20;
-
+  border-radius: 12px;
+  background: #e0e5ec;
+  box-shadow: 5px 5px 10px #a3b1c6,
+              -5px -5px 10px #ffffff;
   cursor: pointer;
-
-  transition: 0.15s;
+  transition: 0.2s;
 }
 
-button:hover {
-  transform: translateY(-2px);
-  background: #c9cbd1;
+button:active {
+  box-shadow: inset 5px 5px 10px #a3b1c6,
+              inset -5px -5px 10px #ffffff;
 }
 
-/* 🔥 işlem tuşları (turuncu) */
-.operator {
-  background: #ff8c2a;
+.equal {
+  grid-row: span 2;
+  height: 130px;
+  background: #4c8bf5;
   color: white;
 }
 
-.operator:hover {
-  background: #ff9f4d;
-}
-
-/* clear */
-.clear {
-  background: #aab0ba;
-  color: #fff;
-}
-
-.clear:hover {
-  background: #959ca8;
-}
-
-/* eşittir */
-.equal-sign {
-  grid-column: span 4;
-
-  background: #ff8c2a;
-  color: white;
-
-  font-weight: 600;
-}
-
-.equal-sign:hover {
-  background: #ff9f4d;
+.zero {
+  grid-column: span 2;
+  width: 130px;
 }
