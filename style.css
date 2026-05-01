@@ -10,80 +10,68 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #fdfbfb; /* Çok yumuşak beyaz */
-    background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+    background-color: #e8ebf3; /* Yumuşak grimsi mavi arka plan */
 }
 
 .calculator {
-    background: #ffffff;
-    padding: 25px;
-    border-radius: 40px;
-    box-shadow: 20px 20px 60px #d9d9d9, -20px -20px 60px #ffffff;
-    width: 340px;
+    background: #e8ebf3;
+    padding: 30px;
+    border-radius: 45px;
+    box-shadow: 20px 20px 60px #c5c9cf, -20px -20px 60px #ffffff;
+    width: 350px;
 }
 
-#display {
+.calculator-input {
     width: 100%;
-    height: 80px;
+    height: 85px;
     border: none;
-    background: #f0f0f0;
-    margin-bottom: 30px;
+    background: #e8ebf3;
     border-radius: 20px;
-    text-align: right;
+    margin-bottom: 25px;
     padding: 0 25px;
-    font-size: 2rem;
-    color: #333 !important; /* Yazı rengi zorunlu siyah */
-    opacity: 1 !important; /* Disabled olsa bile soluk görünmesin */
-    -webkit-text-fill-color: #333; /* Safari/Chrome için fix */
+    font-size: 2.2rem;
+    text-align: right;
+    color: #444; /* Net okunur koyu gri */
+    outline: none;
+    box-shadow: inset 8px 8px 16px #c5c9cf, inset -8px -8px 16px #ffffff;
 }
 
-.buttons {
+.calculator-keys {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 15px;
 }
 
 button {
-    width: 60px;
     height: 60px;
-    border-radius: 18px;
+    border-radius: 20px;
     border: none;
-    background: #ffffff;
-    box-shadow: 5px 5px 10px #e6e6e6, -5px -5px 10px #ffffff;
+    background: #e8ebf3;
+    box-shadow: 6px 6px 12px #c5c9cf, -6px -6px 12px #ffffff;
     font-size: 1.2rem;
-    font-weight: 500;
-    color: #777;
+    font-weight: 600;
+    color: #666;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+    color: #333;
+    transform: translateY(-2px);
 }
 
 button:active {
-    box-shadow: inset 4px 4px 8px #e6e6e6, inset -4px -4px 8px #ffffff;
-    transform: scale(0.96);
+    box-shadow: inset 4px 4px 8px #c5c9cf, inset -4px -4px 8px #ffffff;
+    transform: translateY(1px);
 }
 
-.operator {
-    color: #ffb8b8; /* Soft kırmızı-pembe tonu */
-}
-
-.special {
-    color: #b8c1ec; /* Soft mavi tonu */
-}
-
-.equal {
-    background: #eebfbf;
-    color: white;
-    grid-row: span 2;
+.btn-clear { color: #ff6b6b; }
+.btn-equal { 
+    background: #a29bfe; 
+    color: white; 
+    grid-row: span 2; 
     height: 135px;
-    box-shadow: 5px 5px 15px rgba(238, 191, 191, 0.4);
+    box-shadow: 5px 5px 15px rgba(162, 155, 254, 0.4);
 }
 
-.zero {
-    grid-column: span 1;
-}
-
-/* Sayıların üzerine gelince hafif bir soft renk */
-button:hover:not(.equal) {
-    background-color: #fafafa;
-    color: #333;
-}
+.btn-zero { grid-column: span 1; }
