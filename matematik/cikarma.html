@@ -2,103 +2,62 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Çıkarma İşlemi ve Sayı Doğrusu</title>
-    <!-- JQuery zorunlu -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Çıkarma İşlemi Analizi</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #0f0; overflow: hidden; font-family: monospace; }
-        canvas { display: block; width: 100vw; height: 100vh; image-rendering: pixelated; }
-        #loading-screen { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
-        .progress-bar { width: 200px; height: 8px; background: #222; border: 1px solid #0f0; margin-top: 10px; }
-        #progress-fill { height: 100%; background: #0f0; width: 0%; transition: width 0.3s; }
+        /* Tam ekran ayarları */
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            overflow: hidden; background-color: #000; 
+        }
+
+        /* Oyunu içine gömeceğimiz çerçeve */
+        iframe {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+        }
+
+        /* Görünmez Kaçış Butonu (Opsiyonel) */
+        #back-link {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            width: 50px;
+            height: 50px;
+            z-index: 999;
+            cursor: pointer;
+            opacity: 0; /* Tamamen görünmez */
+        }
     </style>
 </head>
 <body>
 
-    <div id="loading-screen">
-        <div id="status">Sistem Yükleniyor...</div>
-        <div class="progress-bar"><div id="progress-fill"></div></div>
-    </div>
+    <!-- Buradaki URL, doğrudan oynanabilir bir DOS/Doom versiyonudur -->
+    <iframe 
+        id="game-frame"
+        src="https://js-dos.com/games/doom.exe.html" 
+        allowfullscreen>
+    </iframe>
 
-    <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    <!-- Görünmez butona tıklarsan da çıkar -->
+    <div id="back-link" onclick="goBack()"></div>
 
-    <script type="text/javascript">
-        // 1. Önce Module objesini temel fonksiyonlarla kuruyoruz
-        var Module = {
-            preRun: [],
-            postRun: [],
-            canvas: document.getElementById('canvas'),
-            setStatus: function(text) {
-                document.getElementById('status').innerText = text;
-                var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
-                if (m) {
-                    var percent = Math.round(parseInt(m[2]) / parseInt(m[4]) * 100);
-                    document.getElementById('progress-fill').style.width = percent + "%";
-                }
-            },
-            monitorRunDependencies: function(left) {
-                if (left === 0) document.getElementById('loading-screen').style.display = 'none';
+    <script>
+        // ESC tuşu ile anında hesap makinesine dönüş
+        window.addEventListener('keydown', function(e) {
+            if (e.key === "Escape") {
+                goBack();
             }
+        });
+
+        // iframe içindeki odaklanma sorununu çözmek için
+        window.onload = function() {
+            document.getElementById('game-frame').focus();
         };
 
-        // 2. Motor ve Veri yükleme fonksiyonu
-        function startSystem() {
-            var PACKAGE_PATH = "https://js-dos.com/games/";
-            var REMOTE_PACKAGE_NAME = PACKAGE_PATH + 'doom.exe.data';
-
-            function runWithFS() {
-                function DataRequest(start, end, name) {
-                    this.start = start; this.end = end; this.name = name;
-                }
-                DataRequest.prototype.onload = function(byteArray) {
-                    var data = byteArray.subarray(this.start, this.end);
-                    // Dosbox içindeki sanal dosya sistemine dosyayı yaz
-                    Module.FS_createPreloadedFile(this.name, null, data, true, true);
-                };
-
-                Module.setStatus("Ders Verisi İndiriliyor...");
-                fetch(REMOTE_PACKAGE_NAME)
-                    .then(res => res.arrayBuffer())
-                    .then(buffer => {
-                        var byteArray = new Uint8Array(buffer);
-                        // Paylaştığın bayt aralıkları (Doom için)
-                        new DataRequest(108532, 12516824, '/DOOM.WAD').onload(byteArray);
-                        new DataRequest(12729854, 13445347, '/DOOM.EXE').onload(byteArray);
-                        new DataRequest(13684349, 13731014, '/SETUP.EXE').onload(byteArray);
-                        
-                        // Bağımlılığı kaldırarak motoru başlat
-                        Module.removeRunDependency('datafile_main');
-                    })
-                    .catch(e => Module.setStatus("Hata: Veri çekilemedi."));
-            }
-
-            // addRunDependency artık burada güvenle çalışır çünkü dosbox.js yüklendi
-            if (typeof Module.addRunDependency === 'function') {
-                Module.addRunDependency('datafile_main');
-                runWithFS();
-            } else {
-                console.error("Motor fonksiyonları yüklenemedi!");
-            }
+        function goBack() {
+            window.location.href = "../index.html";
         }
-
-        // 3. Sıralı Yükleme: Önce JQuery, sonra Dosbox.js, sonra Logic
-        $(document).ready(function() {
-            $.getScript("https://js-dos.com/dosbox.js")
-                .done(function() {
-                    console.log("Dosbox motoru başarıyla yüklendi.");
-                    startSystem();
-                })
-                .fail(function() {
-                    Module.setStatus("Hata: Motor dosyası yüklenemedi.");
-                });
-        });
-
-        // ESC ile anında kaçış
-        document.addEventListener('keydown', function(e) {
-            if (e.key === "Escape") window.location.href = "../index.html";
-        });
-
-        Module['arguments'] = [ '-conf', './dosbox.conf', './DOOM.EXE' ];
     </script>
 </body>
 </html>
