@@ -1,27 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Sayı Doğrusu: Flappy Analizi</title>
+    <title>Sayı Doğrusu Modeli - Codeculation</title>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- İkon değişti -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     <link rel="icon" href="https://i.ibb.co/M6KTWnf/pic.jpg" />
     
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #222;
+        /* Sekmeyi boşluksuz kaplayan tam ekran tasarımı */
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: #000; overflow: hidden; 
+            display: flex; justify-content: center; align-items: center;
         }
         canvas {
-            border: 4px solid #444;
-            background: url('http://s2js.com/img/etc/flappyback.png');
+            width: 100vw; 
+            height: 100vh; 
+            display: block;
+            image-rendering: pixelated;
+            background: url('http://s2js.com/img/etc/flappyback.png') center center;
             background-size: cover;
-            box-shadow: 0 0 30px rgba(0,0,0,0.7);
         }
     </style>
 </head>
@@ -40,13 +38,21 @@
         var time_game_last_running;
         var bottom_bar_offset = 0;
         var pipes = [];
+        var myName = "Codeculation";
 
-        // SES EFEKTLERİ
-        var jumpSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2015/2015-preview.mp3");
-        var hitSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2008/2008-preview.mp3");
-        var scoreSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3");
+        // SESLER (Güvenilir linkler)
+        var jumpSound = new Audio("https://www.soundjay.com/buttons/sounds/button-27.mp3");
+        var hitSound = new Audio("https://www.soundjay.com/buttons/sounds/button-10.mp3");
 
-        // GİZLİ KAÇIŞ: Shift + 4 ($)
+        // Ses kilidini açan fonksiyon
+        function unlockAudio() {
+            jumpSound.play().then(() => { jumpSound.pause(); jumpSound.currentTime = 0; });
+            hitSound.play().then(() => { hitSound.pause(); hitSound.currentTime = 0; });
+            window.removeEventListener('click', unlockAudio);
+        }
+        window.addEventListener('click', unlockAudio);
+
+        // GİZLİ KAÇIŞ: Shift + 4 ($) -> Hesap Makinesine Dönüş
         document.addEventListener('keydown', function(e) {
             if (e.shiftKey && (e.key === "4" || e.key === "$")) {
                 window.location.href = "index.html";
@@ -88,7 +94,7 @@
                 case "running": 
                     bird.velocity_y = jump_amount; 
                     jumpSound.currentTime = 0;
-                    jumpSound.play(); // Zıplama sesi
+                    jumpSound.play().catch(() => {});
                     break;
                 case "over":
                     if (new Date() - time_game_last_running > 1000) {
@@ -106,14 +112,6 @@
             if (e.key === " " || e.key === "ArrowUp") Got_Player_Input(e);
         });
 
-        function make_bird_slow_and_fall() {
-            if (bird.velocity_y < max_fall_speed) bird.velocity_y += acceleration;
-            if (bird.y > myCanvas.height - bird.MyImg.height || bird.y < -bird.MyImg.height) {
-                if(game_mode === "running") { hitSound.play(); } // Çarpma sesi
-                game_mode = "over";
-            }
-        }
-
         function add_pipe(x_pos, top_of_gap, gap_width) {
             var top_pipe = new MySprite();
             top_pipe.MyImg = pipe_piece;
@@ -129,15 +127,6 @@
             pipes.push(bottom_pipe);
         }
 
-        function check_for_end_game() {
-            for (var i = 0; i < pipes.length; i++) {
-                if (ImagesTouching(bird, pipes[i])) {
-                    hitSound.play(); // Çarpma sesi
-                    game_mode = "over";
-                }
-            }
-        }
-
         function reset_game() {
             bird.y = myCanvas.height / 2;
             bird.velocity_y = 0;
@@ -147,8 +136,8 @@
         }
 
         function add_all_my_pipes() {
-            for(var i=0; i<10; i++) {
-                add_pipe(500 + (i*300), 50 + Math.random()*200, 140);
+            for(var i=0; i<15; i++) {
+                add_pipe(500 + (i*350), 50 + Math.random()*200, 140);
             }
         }
 
@@ -170,28 +159,43 @@
             if (bottom_bar_offset < -23) bottom_bar_offset = 0;
             ctx.drawImage(bottom_bar, bottom_bar_offset, myCanvas.height - bottom_bar.height);
 
+            // Sağ üstte markan
+            ctx.font = "bold 16px Courier New";
+            ctx.fillStyle = "rgba(255,255,255,0.7)";
+            ctx.textAlign = "right";
+            ctx.fillText(myName, myCanvas.width - 20, 30);
+
             switch (game_mode) {
                 case "prestart":
-                    ctx.font = "25px Arial"; ctx.fillStyle = "white"; ctx.textAlign = "center";
-                    ctx.fillText("Analizi Başlatmak İçin Tıklayın", myCanvas.width / 2, myCanvas.height / 2);
+                    ctx.font = "30px Arial"; ctx.fillStyle = "white"; ctx.textAlign = "center";
+                    ctx.fillText(myName + " - Modeli Başlat", myCanvas.width / 2, myCanvas.height / 2);
                     break;
                 case "running":
                     time_game_last_running = new Date();
                     bottom_bar_offset += pipe_speed;
                     for (var i = 0; i < pipes.length; i++) pipes[i].Do_Frame_Things();
                     if (bird.velocity_y < 0) bird.angle = -15; else if (bird.angle < 70) bird.angle += 4;
-                    make_bird_slow_and_fall();
-                    check_for_end_game();
+                    
+                    if (bird.velocity_y < max_fall_speed) bird.velocity_y += acceleration;
+                    if (bird.y > myCanvas.height - bird.MyImg.height || bird.y < -bird.MyImg.height) {
+                        hitSound.play();
+                        game_mode = "over";
+                    }
+                    for (var i = 0; i < pipes.length; i++) {
+                        if (ImagesTouching(bird, pipes[i])) {
+                            hitSound.play();
+                            game_mode = "over";
+                        }
+                    }
                     break;
                 case "over":
-                    make_bird_slow_and_fall();
-                    ctx.font = "30px Arial"; ctx.fillStyle = "red"; ctx.textAlign = "center";
-                    ctx.fillText("Veri Akışı Kesildi", myCanvas.width / 2, 200);
-                    ctx.font = "20px Arial"; ctx.fillText("Tekrar denemek için tıklayın", myCanvas.width / 2, 250);
+                    ctx.font = "30px Arial"; ctx.fillStyle = "yellow"; ctx.textAlign = "center";
+                    ctx.fillText("Modelleme Durdu", myCanvas.width / 2, 200);
+                    ctx.font = "18px Arial"; ctx.fillStyle = "white";
+                    ctx.fillText("Yeniden denemek için tıklayın", myCanvas.width / 2, 250);
                     break;
             }
         }
-
         setInterval(Do_a_Frame, 1000 / FPS);
     </script>
 </body>
