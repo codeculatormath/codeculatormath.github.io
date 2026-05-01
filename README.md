@@ -1,16 +1,20 @@
-## Hi there 👋
+# 📊 Matematik Hesap Makinesi Projesi
 
-<!--
-**codeculatormath/codeculatormath** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+Bu proje, HTML + CSS + JavaScript kullanılarak geliştirilmiş bir hesap makinesi uygulamasıdır.  
+Ayrıca belirli gizli kodlar girildiğinde farklı matematik konularına yönlendirme yapar.
 
-Here are some ideas to get you started:
+---
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+## 🚀 Özellikler
+
+- ➕ Toplama, çıkarma, çarpma, bölme işlemleri
+- 🧠 Gizli kod (easter egg) sistemi
+- 📁 JSON dosyasından veri okuma
+- 🌐 GitHub Pages uyumlu çalışma
+- 🎨 Modern ve dark tema tasarım
+
+---
+
+## 📁 Proje Yapısı
+
+-# Aramızda kalsın bu matematik programımı bende bilmiyorum.
