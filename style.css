@@ -1,35 +1,34 @@
 body {
   margin: 0;
-  background: #0f0f0f;
-  font-family: Arial, sans-serif;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  background: #f2f2f2;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  color: white;
 }
 
-/* Ana kutu */
+/* Ana hesap makinesi kutusu */
 .calc {
   width: 320px;
-  background: #1e1e1e;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.6);
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
 }
 
 /* ekran */
 #display {
   width: 100%;
-  height: 60px;
-  font-size: 24px;
+  height: 70px;
+  font-size: 28px;
   text-align: right;
+  border: none;
+  outline: none;
   padding: 10px;
   margin-bottom: 15px;
-  border: none;
-  border-radius: 10px;
-  background: #2b2b2b;
-  color: #fff;
+  background: #f8f8f8;
+  border-radius: 12px;
   box-sizing: border-box;
 }
 
@@ -43,28 +42,36 @@ body {
 /* butonlar */
 button {
   height: 60px;
-  font-size: 20px;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
+  font-size: 20px;
   cursor: pointer;
-  background: #333;
-  color: white;
-  transition: 0.2s;
+  background: #f1f1f1;
+  transition: 0.15s;
 }
 
-/* hover efekti */
+/* hover */
 button:hover {
-  background: #555;
-  transform: scale(1.05);
+  background: #e2e2e2;
+  transform: translateY(-1px);
 }
 
-/* eşittir butonu */
+/* işlemler */
+button:nth-child(4n) {
+  background: #dfe7ff;
+}
+
+button:nth-child(4n):hover {
+  background: #cfdcff;
+}
+
+/* eşittir */
 .equal {
-  background: orange;
-  color: black;
+  background: #4a7dff;
+  color: white;
   grid-column: span 4;
 }
 
 .equal:hover {
-  background: #ffb84d;
+  background: #3a6cff;
 }
