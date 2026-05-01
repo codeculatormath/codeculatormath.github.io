@@ -1,41 +1,59 @@
-let display = document.getElementById("display");
+const display = document.querySelector(".calculator-input");
+const keys = document.querySelector(".calculator-keys");
+
 let codes = {};
 
-// JSON dosyasını yükle
+// JSON yükle
 fetch("matematik/pi_sayisi.json")
   .then(res => res.json())
   .then(data => {
     codes = data;
-  })
-  .catch(err => {
-    console.log("JSON yüklenemedi:", err);
   });
 
-// ekrana yazma
-function add(val) {
-  display.value += val;
-}
+// input yazma sistemi
+let currentInput = "";
 
-// temizleme
-function clearDisplay() {
-  display.value = "";
-}
+// butonlara tıklama
+keys.addEventListener("click", function (e) {
+  const target = e.target;
 
-// hesaplama + easter egg kontrol
-function calc() {
-  let input = display.value.trim();
+  if (!target.matches("button")) return;
 
-  // 🔥 EASTER EGG KONTROL
-  if (codes[input]) {
-    // ilgili HTML sayfasına yönlendir
-    window.location.href = "matematik/" + codes[input];
+  const value = target.value;
+
+  // AC
+  if (value === "clear") {
+    currentInput = "";
+    display.value = "";
     return;
   }
 
-  // normal hesap makinesi
+  // =
+  if (value === "=") {
+    calculate();
+    return;
+  }
+
+  // normal input
+  currentInput += value;
+  display.value = currentInput;
+});
+
+// hesap + easter egg
+function calculate() {
+
+  // 🔥 EASTER EGG KONTROL
+  if (codes[currentInput]) {
+    window.location.href = "matematik/" + codes[currentInput];
+    return;
+  }
+
   try {
-    display.value = eval(input);
+    let result = eval(currentInput);
+    display.value = result;
+    currentInput = result.toString();
   } catch {
     display.value = "Hata";
+    currentInput = "";
   }
 }
