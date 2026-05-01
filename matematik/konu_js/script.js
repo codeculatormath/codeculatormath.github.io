@@ -1,68 +1,58 @@
-// Sayfa tamamen yüklenene kadar bekle
 document.addEventListener("DOMContentLoaded", function() {
-    
-    const display = document.querySelector(".calculator-input");
+    const display = document.getElementById("display");
     const keys = document.querySelector(".calculator-keys");
-
-    if (!keys || !display) {
-        console.error("Hata: HTML sınıfları (.calculator-input veya .calculator-keys) bulunamadı!");
-        return;
-    }
+    const themeBtn = document.getElementById("theme-btn");
+    const html = document.documentElement;
 
     let codes = {};
-    let currentInput = "";
+    fetch("matematik/pi_sayisi.json").then(res => res.json()).then(data => { codes = data; });
 
-    // JSON yükle
-    fetch("matematik/pi_sayisi.json")
-        .then(res => res.json())
-        .then(data => {
-            codes = data;
-        })
-        .catch(err => console.log("Easter egg dosyası henüz hazır değil."));
+    // GECE - GÜNDÜZ MODU
+    themeBtn.addEventListener("click", () => {
+        const currentTheme = html.getAttribute("data-theme");
+        html.setAttribute("data-theme", currentTheme === "dark" ? "light" : "dark");
+    });
 
-    // Butonlara tıklama
-    keys.addEventListener("click", function (e) {
+    // HESAPLAMA
+    function calculate() {
+        let val = display.value;
+        if (codes[val]) {
+            window.location.href = "matematik/" + codes[val];
+            return;
+        }
+        try {
+            // Güvenli hesaplama için işaretleri düzeltelim
+            let result = eval(val.replace('×', '*').replace('÷', '/').replace('−', '-'));
+            display.value = result;
+        } catch {
+            display.value = "Error";
+        }
+    }
+
+    // KLAVYE DESTEĞİ
+    display.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            calculate();
+        }
+    });
+
+    // BUTON TIKLAMA
+    keys.addEventListener("click", (e) => {
         const target = e.target;
         if (!target.matches("button")) return;
 
-        const value = target.getAttribute("value"); // Değeri güvenli al
+        const val = target.value;
 
-        if (value === "clear") {
-            currentInput = "";
-            display.value = "";
-            return;
-        }
-
-        if (value === "delete") {
-            currentInput = currentInput.slice(0, -1);
-            display.value = currentInput;
-            return;
-        }
-
-        if (value === "=") {
+        if (val === "=") {
             calculate();
-            return;
+        } else if (val === "clear") {
+            display.value = "";
+        } else if (val === "delete") {
+            display.value = display.value.slice(0, -1);
+        } else {
+            display.value += val;
         }
-
-        currentInput += value;
-        display.value = currentInput;
+        display.focus(); // Tıklayınca yazmaya devam edebilmek için odağı koru
     });
-
-    function calculate() {
-        if (codes[currentInput]) {
-            window.location.href = "matematik/" + codes[currentInput];
-            return;
-        }
-
-        try {
-            if (currentInput !== "") {
-                let result = eval(currentInput);
-                display.value = result;
-                currentInput = result.toString();
-            }
-        } catch {
-            display.value = "Hata";
-            currentInput = "";
-        }
-    }
 });
