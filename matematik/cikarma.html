@@ -6,15 +6,9 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
-        /* Canvas tam ekran ve en yüksek performansta çalışacak şekilde ayarlandı */
-        canvas.emscripten { 
-            width: 100vw; height: 100vh; display: block; 
-            image-rendering: -moz-crisp-edges;
-            image-rendering: pixelated; 
-        }
-        /* Sadece yükleme sırasında görünen minimalist bar */
-        #l { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: #000; z-index: 99; }
-        #b { height: 100%; width: 0; background: #0f0; transition: width 0.1s; }
+        canvas.emscripten { width: 100vw; height: 100vh; display: block; image-rendering: pixelated; }
+        #l { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: #222; z-index: 99; }
+        #b { height: 100%; width: 0; background: #0f0; transition: width 0.2s; }
     </style>
 </head>
 <body>
@@ -24,52 +18,57 @@
     <script type="text/javascript">
         var Module = {
             canvas: document.getElementById('canvas'),
+            noInitialRun: true, // MOTORUN OTOMATİK BAŞLAMASINI ENGELLER (KRİTİK!)
             setStatus: function(t) {
+                console.log(t);
                 var m = t.match(/\((\d+)\/(\d+)\)/);
                 if (m) document.getElementById('b').style.width = (m[1]/m[2]*100) + "%";
             },
-            monitorRunDependencies: function(left) {
-                if (left === 0) {
-                    document.getElementById('l').style.display = 'none';
-                    // Odaklanma sorunu olmasın diye
-                    window.focus();
-                    document.getElementById('canvas').focus();
-                }
+            onRuntimeInitialized: function() {
+                console.log("Motor hazır, veri bekleniyor...");
             }
         };
 
-        // HIZLANDIRILMIŞ BAŞLATICI
-        async function quickStart() {
+        async function startEngine() {
             const DATA_URL = "https://js-dos.com/games/doom.exe.data";
             
-            // 1. Motoru ve Veriyi paralel indir (En büyük hız artışı buradadır)
-            const [res] = await Promise.all([
-                fetch(DATA_URL),
-                new Promise(resolve => $.getScript("https://js-dos.com/dosbox.js", resolve))
-            ]);
+            try {
+                // 1. Motoru ve Veriyi aynı anda çek
+                const [res] = await Promise.all([
+                    fetch(DATA_URL),
+                    new Promise(resolve => $.getScript("https://js-dos.com/dosbox.js", resolve))
+                ]);
 
-            const buffer = await res.arrayBuffer();
-            const bytes = new Uint8Array(buffer);
+                const buffer = await res.arrayBuffer();
+                const bytes = new Uint8Array(buffer);
 
-            // 2. FS işlemlerini seri bir şekilde yap
-            Module.addRunDependency('d');
-            
-            // Doom için kritik dosyaları doğrudan belleğe yaz
-            Module.FS_createPreloadedFile('/', 'DOOM.WAD', bytes.subarray(108532, 12516824), true, true);
-            Module.FS_createPreloadedFile('/', 'DOOM.EXE', bytes.subarray(12729854, 13445347), true, true);
-            
-            Module.removeRunDependency('d');
+                // 2. Dosyaları sanal sisteme yaz (Bağımlılık oluşturarak)
+                Module.addRunDependency('doom_data');
+                
+                // Klasör oluştur ve dosyaları yerleştir
+                Module.FS_createPreloadedFile('/', 'DOOM.WAD', bytes.subarray(108532, 12516824), true, true);
+                Module.FS_createPreloadedFile('/', 'DOOM.EXE', bytes.subarray(12729854, 13445347), true, true);
+                
+                // 3. Veri hazır, bağımlılığı kaldır ve oyunu MANUEL başlat
+                Module.removeRunDependency('doom_data');
+                document.getElementById('l').style.display = 'none';
+                
+                // Ana fonksiyonu (callMain) güvenli bir şekilde tetikle
+                Module.callMain(Module['arguments']);
+                
+            } catch (e) {
+                console.error("Yükleme hatası:", e);
+            }
         }
 
-        // ESC Kaçış (Her zaman aktif)
+        // Kaçış tuşu
         document.addEventListener('keydown', e => {
             if (e.key === "Escape") window.location.href = "../index.html";
         });
 
-        // Başlat
-        quickStart();
-        
+        // Oyunu başlat
         Module['arguments'] = [ '-conf', './dosbox.conf', './DOOM.EXE' ];
+        startEngine();
     </script>
 </body>
 </html>
