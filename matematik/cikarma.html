@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Matematik: Çıkarma İşlemi Temel İlkeleri</title>
+    <!-- JQuery js-dos motoru için gerekli -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        /* Tam ekran oyun alanı */
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: #000; color: #00ff00; 
+            overflow: hidden; font-family: 'Courier New', Courier, monospace; 
+        }
+        
+        canvas { 
+            display: block; width: 100vw; height: 100vh; 
+            image-rendering: pixelated; 
+        }
+
+        /* Hoca görürse diye yükleme ekranı maskesi */
+        .emscripten-status {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center; z-index: 10;
+        }
+
+        #status { font-size: 1.2rem; margin-bottom: 10px; }
+        #progress { 
+            width: 250px; height: 15px; background: #222; 
+            border: 1px solid #00ff00; display: inline-block;
+        }
+
+        /* Alt bilgi (Çok küçük, dikkat çekmez) */
+        .exit-hint {
+            position: fixed; bottom: 5px; right: 5px;
+            color: #333; font-size: 9px; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="emscripten-status">
+        <div id="status">Veri Paketleri Çözümleniyor (Çıkarma İşlemi)...</div>
+        <div id="progress" hidden></div>
+    </div>
+
+    <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    
+    <div class="exit-hint">ESC_TO_CALC</div>
+
+    <script type="text/javascript">
+      // ESC tuşu ile anında hesap makinesine (ana dizine) kaçış
+      document.addEventListener('keydown', function(e) {
+          if (e.key === "Escape") { 
+              window.location.href = "../index.html"; 
+          }
+      });
+
+      var statusElement = document.getElementById('status');
+      var progressElement = document.getElementById('progress');
+
+      var Module = {
+        noImageDecoding: true,
+        preRun: [],
+        postRun: [],
+        print: (function() { return function(text) { console.log(text); }; })(),
+        printErr: function(text) { console.error(text); },
+        canvas: (function() {
+          var canvas = document.getElementById('canvas');
+          canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL lost. Reloading...'); e.preventDefault(); }, false);
+          return canvas;
+        })(),
+        setStatus: function(text) {
+          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+          if (text === Module.setStatus.text) return;
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          if (m) {
+            text = m[1];
+            progressElement.style.width = Math.round(parseInt(m[2]) / parseInt(m[4]) * 100) + "%";
+            progressElement.hidden = false;
+          } else {
+            progressElement.hidden = true;
+          }
+          statusElement.innerHTML = text;
+        },
+        monitorRunDependencies: function(left) {
+          if (left == 0) {
+            $('.emscripten-status').hide();
+          }
+        }
+      };
+
+      // JS-DOS Dosya Sistemi Mantığı
+      (function() {
+        var PACKAGE_PATH = "https://js-dos.com/games/";
+        var PACKAGE_NAME = 'doom.exe.data';
+        var REMOTE_PACKAGE_BASE = PACKAGE_PATH + PACKAGE_NAME;
+
+        function fetchRemotePackage(packageName, callback) {
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', packageName, true);
+          xhr.responseType = 'arraybuffer';
+          xhr.onprogress = function(event) {
+            if (event.lengthComputable) {
+              Module.setStatus("Ders İçeriği İndiriliyor: " + Math.round(event.loaded/event.total*100) + "%");
+            }
+          };
+          xhr.onload = function() { callback(xhr.response); };
+          xhr.send(null);
+        }
+
+        function runWithFS() {
+            function DataRequest(start, end, name) {
+                this.start = start; this.end = end; this.name = name;
+                this.requests = {};
+            }
+            DataRequest.prototype.open = function(m, name) {
+                this.requests[name] = this;
+                Module['addRunDependency']('fp ' + name);
+            };
+            DataRequest.prototype.onload = function() {
+                var byteArray = this.byteArray.subarray(this.start, this.end);
+                Module['FS_createPreloadedFile'](this.name, null, byteArray, true, true, function() {
+                    Module['removeRunDependency']('fp ' + this.name);
+                });
+            };
+
+            // Senin paylaştığın dosya haritası (Örnek Doom dosyaları)
+            new DataRequest(12729854, 13445347, '/DOOM.EXE').open('GET', '/DOOM.EXE');
+            new DataRequest(108532, 12516824, '/DOOM.WAD').open('GET', '/DOOM.WAD');
+            new DataRequest(13684349, 13731014, '/SETUP.EXE').open('GET', '/SETUP.EXE');
+
+            fetchRemotePackage(REMOTE_PACKAGE_BASE, function(arrayBuffer) {
+                DataRequest.prototype.byteArray = new Uint8Array(arrayBuffer);
+                for (var key in DataRequest.prototype.requests) {
+                    DataRequest.prototype.requests[key].onload();
+                }
+                Module['removeRunDependency']('datafile_main');
+            });
+        }
+
+        Module['addRunDependency']('datafile_main');
+        if (Module['calledRun']) runWithFS(); else {
+            if (!Module['preRun']) Module['preRun'] = [];
+            Module["preRun"].push(runWithFS);
+        }
+      })();
+
+      // Motoru Yükle
+      $(document).ready(function () {
+          setTimeout(function () {
+              $.ajax({ url: "https://js-dos.com/dosbox.js", dataType: "script" });
+          }, 500);
+      });
+
+      Module['arguments'] = [ '-conf', './dosbox.conf', './DOOM.EXE' ];
+    </script>
+</body>
+</html>
