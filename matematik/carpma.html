@@ -1,29 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Talha - Flappy Bird</title>
+    <title>Sayı Doğrusu: Flappy Analizi</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="https://fonts.googleapis.com/css?family=Pacifico" rel="stylesheet" />
+    <!-- İkon değişti -->
     <link rel="icon" href="https://i.ibb.co/M6KTWnf/pic.jpg" />
     
     <style>
         body {
-            font-family: "Pacifico", cursive;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background-color: #222;
         }
         canvas {
-            border: 2px solid #0a3cda;
+            border: 4px solid #444;
             background: url('http://s2js.com/img/etc/flappyback.png');
             background-size: cover;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            max-width: 100%;
-            max-height: 90vh;
+            box-shadow: 0 0 30px rgba(0,0,0,0.7);
         }
     </style>
 </head>
@@ -43,36 +41,35 @@
         var bottom_bar_offset = 0;
         var pipes = [];
 
-        // GİZLİ KAÇIŞ: Shift + 4 ($) ile hesap makinesine dön
+        // SES EFEKTLERİ
+        var jumpSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2015/2015-preview.mp3");
+        var hitSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2008/2008-preview.mp3");
+        var scoreSound = new Audio("https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3");
+
+        // GİZLİ KAÇIŞ: Shift + 4 ($)
         document.addEventListener('keydown', function(e) {
-            if (e.shiftKey && (e.key === "4" || e.key === "$" || e.keyCode === 52)) {
+            if (e.shiftKey && (e.key === "4" || e.key === "$")) {
                 window.location.href = "index.html";
             }
         });
 
         function MySprite(img_url) {
-            this.x = 0;
-            this.y = 0;
+            this.x = 0; this.y = 0;
             this.visible = true;
-            this.velocity_x = 0;
-            this.velocity_y = 0;
+            this.velocity_x = 0; this.velocity_y = 0;
             this.MyImg = new Image();
             this.MyImg.src = img_url || "";
             this.angle = 0;
-            this.flipV = false;
-            this.flipH = false;
         }
 
         MySprite.prototype.Do_Frame_Things = function () {
             ctx.save();
             ctx.translate(this.x + this.MyImg.width / 2, this.y + this.MyImg.height / 2);
             ctx.rotate((this.angle * Math.PI) / 180);
-            if (this.flipV) ctx.scale(1, -1);
-            if (this.flipH) ctx.scale(-1, 1);
             if (this.visible && this.MyImg.complete)
                 ctx.drawImage(this.MyImg, -this.MyImg.width / 2, -this.MyImg.height / 2);
-            this.x = this.x + this.velocity_x;
-            this.y = this.y + this.velocity_y;
+            this.x += this.velocity_x;
+            this.y += this.velocity_y;
             ctx.restore();
         };
 
@@ -83,10 +80,16 @@
             return true;
         }
 
-        function Got_Player_Input(MyEvent) {
+        function Got_Player_Input(e) {
             switch (game_mode) {
-                case "prestart": game_mode = "running"; break;
-                case "running": bird.velocity_y = jump_amount; break;
+                case "prestart": 
+                    game_mode = "running"; 
+                    break;
+                case "running": 
+                    bird.velocity_y = jump_amount; 
+                    jumpSound.currentTime = 0;
+                    jumpSound.play(); // Zıplama sesi
+                    break;
                 case "over":
                     if (new Date() - time_game_last_running > 1000) {
                         reset_game();
@@ -94,23 +97,19 @@
                     }
                     break;
             }
-            if(MyEvent) MyEvent.preventDefault();
+            if(e && e.preventDefault) e.preventDefault();
         }
 
-        addEventListener("touchstart", Got_Player_Input);
         addEventListener("mousedown", Got_Player_Input);
+        addEventListener("touchstart", Got_Player_Input);
         addEventListener("keydown", function(e) {
             if (e.key === " " || e.key === "ArrowUp") Got_Player_Input(e);
         });
 
         function make_bird_slow_and_fall() {
             if (bird.velocity_y < max_fall_speed) bird.velocity_y += acceleration;
-            if (bird.y > myCanvas.height - bird.MyImg.height) {
-                bird.velocity_y = 0;
-                game_mode = "over";
-            }
-            if (bird.y < 0 - bird.MyImg.height) {
-                bird.velocity_y = 0;
+            if (bird.y > myCanvas.height - bird.MyImg.height || bird.y < -bird.MyImg.height) {
+                if(game_mode === "running") { hitSound.play(); } // Çarpma sesi
                 game_mode = "over";
             }
         }
@@ -124,50 +123,19 @@
             pipes.push(top_pipe);
             var bottom_pipe = new MySprite();
             bottom_pipe.MyImg = pipe_piece;
-            bottom_pipe.flipV = true;
             bottom_pipe.x = x_pos;
             bottom_pipe.y = top_of_gap + gap_width;
             bottom_pipe.velocity_x = pipe_speed;
             pipes.push(bottom_pipe);
         }
 
-        function make_bird_tilt_appropriately() {
-            if (bird.velocity_y < 0) bird.angle = -15;
-            else if (bird.angle < 70) bird.angle += 4;
-        }
-
-        function show_the_pipes() {
-            for (var i = 0; i < pipes.length; i++) pipes[i].Do_Frame_Things();
-        }
-
         function check_for_end_game() {
-            for (var i = 0; i < pipes.length; i++)
-                if (ImagesTouching(bird, pipes[i])) game_mode = "over";
-        }
-
-        function display_intro_instructions() {
-            ctx.font = "25px Arial";
-            ctx.fillStyle = "red";
-            ctx.textAlign = "center";
-            ctx.fillText("Başlamak için Tıkla veya Tuşa Bas", myCanvas.width / 2, myCanvas.height / 4);
-        }
-
-        function display_game_over() {
-            var score = 0;
-            for (var i = 0; i < pipes.length; i++)
-                if (pipes[i].x < bird.x) score += 0.5;
-            ctx.font = "30px Arial";
-            ctx.fillStyle = "red";
-            ctx.textAlign = "center";
-            ctx.fillText("Oyun Bitti", myCanvas.width / 2, 100);
-            ctx.fillText("Skor: " + Math.floor(score), myCanvas.width / 2, 150);
-            ctx.font = "20px Arial";
-            ctx.fillText("Tekrar oynamak için tıkla", myCanvas.width / 2, 300);
-        }
-
-        function display_bar_running_along_bottom() {
-            if (bottom_bar_offset < -23) bottom_bar_offset = 0;
-            ctx.drawImage(bottom_bar, bottom_bar_offset, myCanvas.height - bottom_bar.height);
+            for (var i = 0; i < pipes.length; i++) {
+                if (ImagesTouching(bird, pipes[i])) {
+                    hitSound.play(); // Çarpma sesi
+                    game_mode = "over";
+                }
+            }
         }
 
         function reset_game() {
@@ -179,16 +147,9 @@
         }
 
         function add_all_my_pipes() {
-            add_pipe(500, 100, 140);
-            add_pipe(800, 50, 140);
-            add_pipe(1100, 250, 140);
-            add_pipe(1400, 150, 120);
-            add_pipe(1700, 100, 120);
-            add_pipe(2100, 150, 120);
-            var finish_line = new MySprite("http://s2js.com/img/etc/flappyend.png");
-            finish_line.x = 2500;
-            finish_line.velocity_x = pipe_speed;
-            pipes.push(finish_line);
+            for(var i=0; i<10; i++) {
+                add_pipe(500 + (i*300), 50 + Math.random()*200, 140);
+            }
         }
 
         var pipe_piece = new Image();
@@ -205,20 +166,28 @@
         function Do_a_Frame() {
             ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
             bird.Do_Frame_Things();
-            display_bar_running_along_bottom();
+            
+            if (bottom_bar_offset < -23) bottom_bar_offset = 0;
+            ctx.drawImage(bottom_bar, bottom_bar_offset, myCanvas.height - bottom_bar.height);
+
             switch (game_mode) {
-                case "prestart": display_intro_instructions(); break;
+                case "prestart":
+                    ctx.font = "25px Arial"; ctx.fillStyle = "white"; ctx.textAlign = "center";
+                    ctx.fillText("Analizi Başlatmak İçin Tıklayın", myCanvas.width / 2, myCanvas.height / 2);
+                    break;
                 case "running":
                     time_game_last_running = new Date();
                     bottom_bar_offset += pipe_speed;
-                    show_the_pipes();
-                    make_bird_tilt_appropriately();
+                    for (var i = 0; i < pipes.length; i++) pipes[i].Do_Frame_Things();
+                    if (bird.velocity_y < 0) bird.angle = -15; else if (bird.angle < 70) bird.angle += 4;
                     make_bird_slow_and_fall();
                     check_for_end_game();
                     break;
                 case "over":
                     make_bird_slow_and_fall();
-                    display_game_over();
+                    ctx.font = "30px Arial"; ctx.fillStyle = "red"; ctx.textAlign = "center";
+                    ctx.fillText("Veri Akışı Kesildi", myCanvas.width / 2, 200);
+                    ctx.font = "20px Arial"; ctx.fillText("Tekrar denemek için tıklayın", myCanvas.width / 2, 250);
                     break;
             }
         }
