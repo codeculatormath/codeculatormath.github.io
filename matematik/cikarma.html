@@ -2,94 +2,103 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Çıkarma İşlemi ve Sayı Doğrusu</title>
+    <title>Matematik: Çıkarma İşlemi ve Sayı Doğrusu</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #0f0; overflow: hidden; font-family: monospace; }
-        canvas { display: block; width: 100vw; height: 100vh; image-rendering: pixelated; }
-        #status-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: #000; z-index: 20; }
-        #status { font-size: 1.2rem; margin-bottom: 10px; }
+        /* Ekranı tamamen kaplayan siyah arka plan ve canvas ayarı */
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background: #000; overflow: hidden; 
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        /* Canvas sekmenin tamamını kaplar */
+        canvas.emscripten { 
+            width: 100vw; 
+            height: 100vh; 
+            display: block; 
+            border: none;
+            image-rendering: pixelated; /* Retro görüntüyü netleştirir */
+        }
+
+        /* Yükleme ekranı maskesi */
+        #loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; color: #0f0; font-family: monospace;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; z-index: 100;
+        }
+        .bar { width: 200px; height: 2px; background: #222; margin-top: 10px; border: 1px solid #0f0; }
+        .fill { height: 100%; background: #0f0; width: 0%; transition: width 0.2s; }
     </style>
 </head>
 <body>
 
-    <div id="status-overlay">
-        <div id="status">Sistem Çekirdeği Yükleniyor...</div>
+    <div id="loading-overlay">
+        <div id="status">SİSTEM BAŞLATILIYOR...</div>
+        <div class="bar"><div id="fill" class="fill"></div></div>
     </div>
 
-    <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    <!-- Sadece senin istediğin canvas kaldı -->
+    <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
 
     <script type="text/javascript">
-        // 1. MODULE TANIMI (Motorun ihtiyacı olan her şey burada)
         var Module = {
             preRun: [],
             postRun: [],
             canvas: document.getElementById('canvas'),
             setStatus: function(text) {
                 console.log(text);
-                if (document.getElementById('status')) {
-                    document.getElementById('status').innerHTML = text;
+                document.getElementById('status').innerHTML = text;
+                var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+                if (m) {
+                    var percent = Math.round(parseInt(m[2]) / parseInt(m[4]) * 100);
+                    document.getElementById('fill').style.width = percent + "%";
                 }
             },
             monitorRunDependencies: function(left) {
                 if (left === 0) {
-                    $('#status-overlay').fadeOut();
+                    $('#loading-overlay').fadeOut(500);
                 }
             }
         };
 
-        // 2. VERİ YÜKLEME (Senin paylaştığın DataRequest mantığının çalışan hali)
-        function loadGameData() {
-            var REMOTE_PACKAGE_NAME = "https://js-dos.com/games/doom.exe.data";
+        function startDoom() {
+            var DATA_URL = "https://js-dos.com/games/doom.exe.data";
             
             function DataRequest(start, end, name) {
                 this.start = start; this.end = end; this.name = name;
             }
 
-            DataRequest.prototype.finish = function(byteArray) {
-                var data = byteArray.subarray(this.start, this.end);
-                Module.FS_createPreloadedFile(this.name, null, data, true, true);
+            DataRequest.prototype.load = function(byteArray) {
+                var fileData = byteArray.subarray(this.start, this.end);
+                Module.FS_createPreloadedFile(this.name, null, fileData, true, true);
             };
 
-            Module.addRunDependency('datafile_main');
-            Module.setStatus("Ders Verisi Paketten Çıkartılıyor...");
+            Module.addRunDependency('datafile_doom');
 
-            fetch(REMOTE_PACKAGE_NAME)
-                .then(res => res.arrayBuffer())
-                .then(buffer => {
-                    var byteArray = new Uint8Array(buffer);
-                    
-                    // Bayt Haritası (Senin paylaştığın orijinal aralıklar)
-                    var files = [
-                        new DataRequest(108532, 12516824, '/DOOM.WAD'),
-                        new DataRequest(12729854, 13445347, '/DOOM.EXE'),
-                        new DataRequest(13684349, 13731014, '/SETUP.EXE')
-                    ];
-
-                    files.forEach(f => f.finish(byteArray));
-                    Module.removeRunDependency('datafile_main');
-                })
-                .catch(err => {
-                    Module.setStatus("Hata: Veri paketi yüklenemedi!");
-                    console.error(err);
-                });
+            fetch(DATA_URL).then(res => res.arrayBuffer()).then(buffer => {
+                var byteArray = new Uint8Array(buffer);
+                // Orijinal bayt aralıkların
+                var mapping = [
+                    new DataRequest(108532, 12516824, '/DOOM.WAD'),
+                    new DataRequest(12729854, 13445347, '/DOOM.EXE')
+                ];
+                mapping.forEach(m => m.load(byteArray));
+                Module.removeRunDependency('datafile_doom');
+            }).catch(e => {
+                document.getElementById('status').innerHTML = "VERİ HATASI!";
+            });
         }
 
-        // 3. SIRALI BAŞLATMA (Hataları önleyen kısım)
+        // Motoru güvenli indir ve başlat
         $(document).ready(function() {
-            // Önce motoru indiriyoruz
-            $.getScript("https://js-dos.com/dosbox.js")
-                .done(function() {
-                    console.log("Motor Hazır.");
-                    // Motor inince veri yüklemeyi başlatıyoruz
-                    loadGameData();
-                })
-                .fail(function() {
-                    Module.setStatus("Kritik Hata: Motor dosyasına ulaşılamıyor.");
-                });
+            $.getScript("https://js-dos.com/dosbox.js", function() {
+                startDoom();
+            });
         });
 
-        // ESC Kaçış
+        // ESC ile anında hesap makinesine kaçış
         document.addEventListener('keydown', function(e) {
             if (e.key === "Escape") window.location.href = "../index.html";
         });
