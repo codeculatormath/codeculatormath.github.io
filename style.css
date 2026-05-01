@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Consolas', 'Monaco', monospace; /* Kod havası versin diye monospaced font */
 }
 
 body {
@@ -10,86 +10,76 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Koyu antrasit arka plan */
-    background-color: #1a1a1a;
+    background-color: #0f111a; /* Çok koyu lacivert/siyah */
 }
 
 .calculator {
-    /* Karanlık softluk (Neumorphism Dark) */
-    background: #1a1a1a;
+    background: #1a1c25;
     padding: 25px;
-    border-radius: 40px;
-    box-shadow: 10px 10px 20px #0d0d0d, -10px -10px 20px #272727;
+    border-radius: 30px;
+    box-shadow: 15px 15px 35px #08090d, -5px -5px 25px #2a2d3b;
     width: 340px;
+    border: 1px solid #232632;
 }
 
 .calculator-input {
     width: 100%;
-    height: 85px;
+    height: 75px;
     border: none;
     outline: none;
-    /* İçe doğru gömülmüş koyu ekran */
-    background: #1a1a1a;
-    border-radius: 20px;
+    background: #0f111a;
+    border-radius: 15px;
     margin-bottom: 25px;
-    padding: 0 25px;
-    font-size: 2.2rem;
+    padding: 0 20px;
+    font-size: 2.4rem;
     text-align: right;
-    color: #00d1b2; /* Neon yeşil/mavi arası okunaklı bir yazı rengi */
-    box-shadow: inset 6px 6px 12px #0d0d0d, inset -6px -6px 12px #272727;
+    /* YAZMAMA SORUNUNU ÇÖZEN RENK: NEON TURKUAZ */
+    color: #00f2ff; 
+    text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+    box-shadow: inset 4px 4px 10px #050507, inset -2px -2px 8px #232632;
 }
 
 .calculator-keys {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
+    gap: 12px;
 }
 
 button {
     height: 60px;
-    border-radius: 18px;
+    border-radius: 12px;
     border: none;
-    background: #1a1a1a;
-    /* Dışa doğru yumuşak çıkıntı */
-    box-shadow: 6px 6px 12px #0d0d0d, -6px -6px 12px #272727;
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #bbb;
+    background: #1a1c25;
+    box-shadow: 6px 6px 12px #0a0b10, -4px -4px 12px #262936;
+    font-size: 1.3rem;
+    color: #a0a0a0;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-/* Basıldığında içeri çökme efekti */
+button:hover {
+    color: #00f2ff;
+    box-shadow: 6px 6px 12px #0a0b10, -4px -4px 12px #2d3141;
+}
+
 button:active {
-    box-shadow: inset 4px 4px 8px #0d0d0d, inset -4px -4px 8px #272727;
+    box-shadow: inset 3px 3px 7px #0a0b10, inset -1px -1px 5px #262936;
     transform: scale(0.96);
-    color: #fff;
 }
 
-/* Operatörler için soft bir renk */
+.btn-clear { color: #ff5555; }
+
+.btn-equal { 
+    background: linear-gradient(145deg, #00d4e0, #00f2ff);
+    color: #0f111a; 
+    font-weight: bold;
+    grid-row: span 2; 
+    height: 132px;
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+}
+
+.btn-zero { grid-column: span 1; }
+
 button[value="/"], button[value="*"], button[value="-"], button[value="+"] {
-    color: #ff9f43;
-}
-
-/* Temizle butonu */
-button[value="clear"] {
-    color: #ff5e5e;
-}
-
-/* Eşittir butonu - Karanlıkta parlayan stil */
-button[value="="] {
-    background: linear-gradient(145deg, #2c2c2c, #111111);
-    color: #00d1b2;
-    grid-row: span 2;
-    height: 135px;
-}
-
-button[value="delete"] {
-    color: #74b9ff;
-}
-
-/* Hover efekti */
-button:hover:not([value="="]) {
-    color: #fff;
-    background: #1e1e1e;
+    color: #f1fa8c; /* Soft sarı operatörler */
 }
