@@ -7,37 +7,34 @@
     <link rel="icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo-MxQMBxtjT4lTIt5NpIID2njAAk813g7Bw&s" />
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; user-select: none; }
-        canvas.emscripten { width: 100vw; height: 100vh; display: block; image-rendering: pixelated; }
-        #l { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: #222; z-index: 99; }
+        canvas.emscripten { width: 100vw; height: 100vh; display: block; image-rendering: pixelated; outline: none; }
+        #l { position: fixed; top: 0; left: 0; width: 100%; height: 4px; background: #222; z-index: 1001; }
         #b { height: 100%; width: 0; background: #0f0; transition: width 0.2s; }
 
-        /* PC MODU BUTONU */
         #modeSwitcher {
             position: fixed; top: 20px; right: 20px; z-index: 1000;
-            padding: 15px 30px; background: #f00; color: white;
-            font: bold 20px sans-serif; border: 3px solid white; cursor: pointer;
-            border-radius: 10px; box-shadow: 0 0 15px rgba(255,0,0,0.5);
+            padding: 12px 24px; background: #f00; color: white;
+            font: bold 18px 'Courier New', monospace; border: 3px solid white; cursor: pointer;
+            border-radius: 8px; box-shadow: 0 0 15px rgba(255,0,0,0.5);
         }
 
-        /* Dokunmatik Kontroller */
-        .controls, .action-btns { position: fixed; bottom: 20px; z-index: 100; display: flex; gap: 10px; transition: 0.3s; }
-        .controls { left: 20px; }
-        .action-btns { right: 20px; }
+        .controls, .action-btns { position: fixed; bottom: 25px; z-index: 100; display: flex; gap: 12px; transition: opacity 0.3s; }
+        .controls { left: 25px; }
+        .action-btns { right: 25px; }
         
         .btn {
-            width: 75px; height: 75px; background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.4); border-radius: 10px;
+            width: 75px; height: 75px; background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3); border-radius: 12px;
             display: flex; justify-content: center; align-items: center;
-            color: white; font: bold 24px sans-serif; touch-action: none;
+            color: white; font: bold 26px sans-serif; touch-action: none;
+            backdrop-filter: blur(2px);
         }
-        .btn:active { background: rgba(255, 255, 255, 0.5); }
-        .d-pad { display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 8px; }
+        .btn:active { background: rgba(255, 255, 255, 0.4); transform: scale(0.95); }
+        .d-pad { display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 10px; }
     </style>
 </head>
 <body>
     <div id="l"><div id="b"></div></div>
-    
-    <!-- Mod Değiştirici -->
     <div id="modeSwitcher" onclick="togglePCMode()">PC İSEN BURAYA TIKLA</div>
 
     <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
@@ -52,8 +49,8 @@
             </div>
         </div>
         <div class="action-btns">
-            <div class="btn" style="background: rgba(255, 0, 0, 0.4);" ontouchstart="press('Control')" ontouchend="release('Control')">🔥</div>
-            <div class="btn" style="background: rgba(0, 100, 255, 0.4);" ontouchstart="press(' ')" ontouchend="release(' ')">🚪</div>
+            <div class="btn" style="background: rgba(255, 0, 0, 0.3);" ontouchstart="press('Control')" ontouchend="release('Control')">🔥</div>
+            <div class="btn" style="background: rgba(0, 120, 255, 0.3);" ontouchstart="press(' ')" ontouchend="release(' ')">🚪</div>
         </div>
     </div>
 
@@ -63,34 +60,37 @@
         function togglePCMode() {
             const ui = document.getElementById('touchUI');
             const btn = document.getElementById('modeSwitcher');
-            
             isPCMode = !isPCMode;
 
             if (isPCMode) {
-                ui.style.display = 'none';
+                ui.style.opacity = '0';
+                setTimeout(() => { if(isPCMode) ui.style.display = 'none'; }, 300);
                 btn.innerText = "DOKUNMATİK MODA DÖN";
-                btn.style.background = "#222";
-                // Oyunu durdurmak için ESC gönderiyoruz (Menü açılır)
+                btn.style.background = "#333";
                 press('Escape');
                 setTimeout(() => release('Escape'), 100);
             } else {
                 ui.style.display = 'block';
+                ui.style.opacity = '1';
                 btn.innerText = "PC İSEN BURAYA TIKLA";
                 btn.style.background = "#f00";
             }
         }
 
-        function press(key) {
-            window.dispatchEvent(new KeyboardEvent('keydown', { 'key': key, 'code': key }));
-        }
-        function release(key) {
-            window.dispatchEvent(new KeyboardEvent('keyup', { 'key': key, 'code': key }));
+        // Sanal Tuş Tetikleyici
+        function press(k) { window.dispatchEvent(new KeyboardEvent('keydown', { key: k, keyCode: getKeyCode(k) })); }
+        function release(k) { window.dispatchEvent(new KeyboardEvent('keyup', { key: k, keyCode: getKeyCode(k) })); }
+        
+        function getKeyCode(k) {
+            const map = { 'ArrowUp': 38, 'ArrowDown': 40, 'ArrowLeft': 37, 'ArrowRight': 39, 'Control': 17, ' ': 32, 'Escape': 27 };
+            return map[k] || 0;
         }
 
         var Module = {
             canvas: document.getElementById('canvas'),
             noInitialRun: true,
             setStatus: function(t) {
+                console.log("Status: " + t);
                 var m = t.match(/\((\d+)\/(\d+)\)/);
                 if (m) document.getElementById('b').style.width = (m[1]/m[2]*100) + "%";
             }
@@ -98,25 +98,45 @@
 
         async function startEngine() {
             const DATA_URL = "https://js-dos.com/games/doom.exe.data";
+            const JS_URL = "https://js-dos.com/dosbox.js";
+
             try {
-                const [res] = await Promise.all([
-                    fetch(DATA_URL),
-                    new Promise(resolve => $.getScript("https://js-dos.com/dosbox.js", resolve))
-                ]);
+                // Önce kütüphaneyi yükle
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = JS_URL;
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+
+                // Sonra veriyi çek
+                const res = await fetch(DATA_URL);
                 const buffer = await res.arrayBuffer();
                 const bytes = new Uint8Array(buffer);
 
                 Module.addRunDependency('doom_data');
+                // Doom Dosya Yapılandırması
                 Module.FS_createPreloadedFile('/', 'DOOM.WAD', bytes.subarray(108532, 12516824), true, true);
                 Module.FS_createPreloadedFile('/', 'DOOM.EXE', bytes.subarray(12729854, 13445347), true, true);
                 Module.removeRunDependency('doom_data');
                 
                 document.getElementById('l').style.display = 'none';
-                Module.callMain(Module['arguments']);
-            } catch (e) { console.error(e); }
+                Module.callMain(['-conf', './dosbox.conf', './DOOM.EXE']);
+                
+            } catch (e) {
+                console.error("Yükleme başarısız:", e);
+                alert("Oyun yüklenirken bir hata oluştu. Sayfayı yenileyin.");
+            }
         }
 
-        Module['arguments'] = [ '-conf', './dosbox.conf', './DOOM.EXE' ];
+        // Kaçış tuşu
+        document.addEventListener('keydown', e => {
+            if (e.key === "Escape" && !isPCMode) {
+                // Mobildeysen ve Escape bastıysan (veya butonla tetiklendiyse) menü açılır
+            }
+        });
+
         startEngine();
     </script>
 </body>
