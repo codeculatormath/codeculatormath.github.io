@@ -1,24 +1,22 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Oyun ismi yerine akademik bir başlık -->
-    <title>Gelişmiş Diferansiyel Analiz Sistemi v1.1.5</title>
+    <title>Five Nights At Epstein's</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div id="preloader">
         <div class="preloader-content">
-            <!-- Logo yerine matematiksel terim -->
-            <div class="preloader-logo">MATEMATİKSEL<br>MODELLEME</div>
+            <div class="preloader-logo">FIVE NIGHTS<br>AT EPSTEIN'S</div>
             <div class="preloader-spinner">
                 <div class="spinner-ring"></div>
                 <div class="spinner-ring"></div>
                 <div class="spinner-ring"></div>
             </div>
-            <div class="preloader-text">VERİLER İŞLENİYOR<span class="loading-dots">...</span></div>
+            <div class="preloader-text">LOADING<span class="loading-dots">...</span></div>
             <div class="preloader-progress">
                 <div class="progress-bar" id="progress-bar"></div>
             </div>
@@ -31,22 +29,22 @@
         <div id="game-screen">
             <img id="current-scene" src="" alt="" style="display: none;">
             
+       
             <div id="hotspots"></div>
             
+      
             <div id="ui-overlay">
             
                 <div id="top-left-ui">
-                    <!-- Saat yerine Zaman Serisi Analizi -->
-                    <div id="time-display">ZAMAN: <span id="time-value">12 AM</span></div>
-                    <!-- Gece yerine Modül/Aşama -->
-                    <div id="night-display">MODÜL <span id="night-value">1</span></div>
+                    <div id="time-display"><span id="time-value">12 AM</span></div>
+                    <div id="night-display">NIGHT <span id="night-value">1</span></div>
                 </div>
                 
+         
                 <div id="bottom-right-ui">
                     <div id="oxygen-display">
                         <img src="assets/images/fa3.png" alt="Vent" class="vent-icon">
-                        <!-- Oksijen yerine İşlem Kapasitesi veya Değişken Oranı -->
-                        <span id="power-value">100</span><span class="percent-sign">%</span><span class="oxygen-unit">Değişken Kapasite (Δ)</span>
+                        <span id="power-value">100</span><span class="percent-sign">%</span><span class="oxygen-unit">O<sub>2</sub></span>
                     </div>
                 </div>
             </div>
@@ -54,15 +52,13 @@
 
 
         <div id="camera-panel" class="hidden">
-            <!-- Kamera yerine Gözlem Noktası / Matris hücresi -->
-            <div id="current-cam-label">MATRİS 11</div>
-            <div id="camera-error-label">HATA</div>
+            <div id="current-cam-label">CAM 11</div>
+            <div id="camera-error-label">ERR</div>
   
             <div id="character-overlay"></div>
             <div id="camera-grid"></div>
-            <!-- Butonlar teknik terimlerle değiştirildi -->
-            <button id="shock-hawking-btn">VERİ SETİNİ SIFIRLA</button>
-            <button id="play-sound-btn">FREKANS GÖNDER</button>
+            <button id="shock-hawking-btn">ELECTROCUTE</button>
+            <button id="play-sound-btn">PLAY SOUND</button>
        
             <video id="camera-static-video" loop muted playsinline>
                 <source src="assets/vedio/202512191935.webm" type="video/webm">
@@ -71,25 +67,24 @@
 
 
         <div id="cutscene" class="hidden">
-            <img src="assets/images/cutscene.png" alt="Analiz">
-            <div class="cutscene-hint">Devam etmek için tıklayın...</div>
+            <img src="assets/images/cutscene.png" alt="Cutscene">
+            <div class="cutscene-hint">Click to continue...</div>
         </div>
 
   
         <div id="night-intro" class="hidden">
-            <div id="night-intro-text">MODÜL 1 BAŞLATILIYOR</div>
+            <div id="night-intro-text">NIGHT 1</div>
         </div>
 
 
         <div id="main-menu">
-            <img id="star-icon" class="hidden" src="assets/images/star.png" alt="Başarı">
-            <img id="star-icon-2" class="hidden" src="assets/images/star.png" alt="Başarı 2">
-            <!-- Ana başlık tam bir ders konusu gibi -->
-            <h1>FONKSİYONEL<br>DENKLEM<br>ANALİZİ<br>VE SİMÜLASYONU</h1>
-            <button id="start-game">YENİ ANALİZ BAŞLAT</button>
-            <button id="continue-game" class="hidden">DEVAM ET</button>
-            <button id="special-night-btn" class="hidden">ÖZEL ALGORİTMA MODU</button>
-            <div class="copyright">© EVAN AKADEMİK YAZILIM</div>
+            <img id="star-icon" class="hidden" src="assets/images/star.png" alt="Star">
+            <img id="star-icon-2" class="hidden" src="assets/images/star.png" alt="Star 2">
+            <h1>FIVE<br>NIGHTS<br>AT<br>EPSTEIN'S</h1>
+            <button id="start-game">NEW GAME</button>
+            <button id="continue-game" class="hidden">CONTINUE</button>
+            <button id="special-night-btn" class="hidden">EPSTEIN'S SPECIAL NIGHT</button>
+            <div class="copyright">© EVAN PRODUCTIONS</div>
             <div class="version">v1.1.5</div>
         </div>
         
@@ -108,31 +103,30 @@
                 <source src="assets/vedio/202512191935.webm" type="video/webm">
             </video>
             <div id="game-over-content">
-                <h2 id="game-over-text">HESAPLAMA HATASI</h2>
-                <p id="game-over-subtitle" class="hidden">Parametreler uyumsuz.</p>
-                <button id="restart">Yeniden Dene</button>
-                <button id="main-menu-btn">Ana Panele Dön</button>
+                <h2 id="game-over-text"></h2>
+                <p id="game-over-subtitle" class="hidden"></p>
+                <button id="restart">Restart</button>
+                <button id="main-menu-btn">Main Menu</button>
             </div>
         </div>
 
        
         <div id="tutorial-overlay" class="hidden">
             <div id="tutorial-content">
-                <h2>SİSTEM KULLANIM REHBERİ</h2>
+                <h2>DEFEND YOURSELF AGAINST EPSTEIN</h2>
                 <p>
-                    Algoritma her zaman Matris 11'den başlar. Veri sapmalarını uzak tutmak için ses frekanslarını kullanın. 
-                    Frekans gönderdiğiniz hücrenin, sapmanın olduğu hücreye komşu olduğundan emin olun. 
-                    Aynı noktaya üst üste veri göndermek sistemde kararsızlığa yol açar. 
-                    Aşırı kullanım gözlem noktalarında (matrislerde) arızaya neden olabilir. 
-                    Hataları gidermek için kontrol panelinden sistemleri yeniden başlatın. 
-                    Hava tahliye kanallarındaki sapmalar bu aşamada kritik değildir, veri akışına odaklanın.
+                    EPSTEIN ALWAYS STARTS AT CAM 11. USE THE CAMERA'S AUDIO LURE TO KEEP EPSTEIN FAR AWAY FROM YOU. 
+                    MAKE SURE THE CAMERA YOU'RE PLAYING THE SOUND IN IS NEXT TO THE CAMERA WHERE EPSTEIN IS. 
+                    PLAYING SOUND IN ONLY ONE SPOT WILL NOT WORK IF YOU DO IT TWICE OR MORE IN A ROW. 
+                    USING THE AUDIO LURE TOO MUCH WILL LEAD TO THE CAMERAS BREAKING. 
+                    TO FIX THEM HEAD TO THE CONTROL PANEL AND RESTART THE CAMERAS LIKE YOU JUST DID. 
+                    EPSTEIN DOES NOT ATTACK THROUGH THE VENTS SO DON'T BOTHER CLOSING THEM FOR THIS NIGHT.
                 </p>
-                <button id="tutorial-got-it">ANLADIM</button>
+                <button id="tutorial-got-it">GOT IT</button>
             </div>
         </div>
     </div>
 
-    <!-- JS dosyalarına dokunulmadı, oyun mantığı bozulmaz -->
     <script src="js/GameState.js"></script>
     <script src="js/AssetManager.js"></script>
     <script src="js/UIManager.js"></script>
