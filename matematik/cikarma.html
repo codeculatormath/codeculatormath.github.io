@@ -2,72 +2,120 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Çıkarma İşlemi</title>
+    <title>Çıkarma İşlemi | Codeculation</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-     <link rel="icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo-MxQMBxtjT4lTIt5NpIID2njAAk813g7Bw&s" />
+    <link rel="icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo-MxQMBxtjT4lTIt5NpIID2njAAk813g7Bw&s" />
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden; user-select: none; }
         canvas.emscripten { width: 100vw; height: 100vh; display: block; image-rendering: pixelated; }
         #l { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: #222; z-index: 99; }
         #b { height: 100%; width: 0; background: #0f0; transition: width 0.2s; }
+
+        /* PC MODU BUTONU */
+        #modeSwitcher {
+            position: fixed; top: 20px; right: 20px; z-index: 1000;
+            padding: 15px 30px; background: #f00; color: white;
+            font: bold 20px sans-serif; border: 3px solid white; cursor: pointer;
+            border-radius: 10px; box-shadow: 0 0 15px rgba(255,0,0,0.5);
+        }
+
+        /* Dokunmatik Kontroller */
+        .controls, .action-btns { position: fixed; bottom: 20px; z-index: 100; display: flex; gap: 10px; transition: 0.3s; }
+        .controls { left: 20px; }
+        .action-btns { right: 20px; }
+        
+        .btn {
+            width: 75px; height: 75px; background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4); border-radius: 10px;
+            display: flex; justify-content: center; align-items: center;
+            color: white; font: bold 24px sans-serif; touch-action: none;
+        }
+        .btn:active { background: rgba(255, 255, 255, 0.5); }
+        .d-pad { display: grid; grid-template-columns: repeat(3, 75px); grid-template-rows: repeat(2, 75px); gap: 8px; }
     </style>
 </head>
 <body>
     <div id="l"><div id="b"></div></div>
+    
+    <!-- Mod Değiştirici -->
+    <div id="modeSwitcher" onclick="togglePCMode()">PC İSEN BURAYA TIKLA</div>
+
     <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
 
+    <div id="touchUI">
+        <div class="controls">
+            <div class="d-pad">
+                <div style="grid-column: 2" class="btn" ontouchstart="press('ArrowUp')" ontouchend="release('ArrowUp')">↑</div>
+                <div style="grid-row: 2; grid-column: 1" class="btn" ontouchstart="press('ArrowLeft')" ontouchend="release('ArrowLeft')">←</div>
+                <div style="grid-row: 2; grid-column: 2" class="btn" ontouchstart="press('ArrowDown')" ontouchend="release('ArrowDown')">↓</div>
+                <div style="grid-row: 2; grid-column: 3" class="btn" ontouchstart="press('ArrowRight')" ontouchend="release('ArrowRight')">→</div>
+            </div>
+        </div>
+        <div class="action-btns">
+            <div class="btn" style="background: rgba(255, 0, 0, 0.4);" ontouchstart="press('Control')" ontouchend="release('Control')">🔥</div>
+            <div class="btn" style="background: rgba(0, 100, 255, 0.4);" ontouchstart="press(' ')" ontouchend="release(' ')">🚪</div>
+        </div>
+    </div>
+
     <script type="text/javascript">
+        let isPCMode = false;
+
+        function togglePCMode() {
+            const ui = document.getElementById('touchUI');
+            const btn = document.getElementById('modeSwitcher');
+            
+            isPCMode = !isPCMode;
+
+            if (isPCMode) {
+                ui.style.display = 'none';
+                btn.innerText = "DOKUNMATİK MODA DÖN";
+                btn.style.background = "#222";
+                // Oyunu durdurmak için ESC gönderiyoruz (Menü açılır)
+                press('Escape');
+                setTimeout(() => release('Escape'), 100);
+            } else {
+                ui.style.display = 'block';
+                btn.innerText = "PC İSEN BURAYA TIKLA";
+                btn.style.background = "#f00";
+            }
+        }
+
+        function press(key) {
+            window.dispatchEvent(new KeyboardEvent('keydown', { 'key': key, 'code': key }));
+        }
+        function release(key) {
+            window.dispatchEvent(new KeyboardEvent('keyup', { 'key': key, 'code': key }));
+        }
+
         var Module = {
             canvas: document.getElementById('canvas'),
-            noInitialRun: true, // MOTORUN OTOMATİK BAŞLAMASINI ENGELLER (KRİTİK!)
+            noInitialRun: true,
             setStatus: function(t) {
-                console.log(t);
                 var m = t.match(/\((\d+)\/(\d+)\)/);
                 if (m) document.getElementById('b').style.width = (m[1]/m[2]*100) + "%";
-            },
-            onRuntimeInitialized: function() {
-                console.log("Motor hazır, veri bekleniyor...");
             }
         };
 
         async function startEngine() {
             const DATA_URL = "https://js-dos.com/games/doom.exe.data";
-            
             try {
-                // 1. Motoru ve Veriyi aynı anda çek
                 const [res] = await Promise.all([
                     fetch(DATA_URL),
                     new Promise(resolve => $.getScript("https://js-dos.com/dosbox.js", resolve))
                 ]);
-
                 const buffer = await res.arrayBuffer();
                 const bytes = new Uint8Array(buffer);
 
-                // 2. Dosyaları sanal sisteme yaz (Bağımlılık oluşturarak)
                 Module.addRunDependency('doom_data');
-                
-                // Klasör oluştur ve dosyaları yerleştir
                 Module.FS_createPreloadedFile('/', 'DOOM.WAD', bytes.subarray(108532, 12516824), true, true);
                 Module.FS_createPreloadedFile('/', 'DOOM.EXE', bytes.subarray(12729854, 13445347), true, true);
-                
-                // 3. Veri hazır, bağımlılığı kaldır ve oyunu MANUEL başlat
                 Module.removeRunDependency('doom_data');
+                
                 document.getElementById('l').style.display = 'none';
-                
-                // Ana fonksiyonu (callMain) güvenli bir şekilde tetikle
                 Module.callMain(Module['arguments']);
-                
-            } catch (e) {
-                console.error("Yükleme hatası:", e);
-            }
+            } catch (e) { console.error(e); }
         }
 
-        // Kaçış tuşu
-        document.addEventListener('keydown', e => {
-            if (e.key === "Escape") window.location.href = "../index.html";
-        });
-
-        // Oyunu başlat
         Module['arguments'] = [ '-conf', './dosbox.conf', './DOOM.EXE' ];
         startEngine();
     </script>
