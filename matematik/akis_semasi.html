@@ -1,142 +1,219 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Five Nights At Epstein's</title>
-    <link rel="stylesheet" href="style.css">
+    <title>PIXEL MINES - SCALE UP</title>
+    <style>
+        :root {
+            --bg: #0f0f0f;
+            --panel: #222;
+            --cell-off: #333;
+            --cell-on: #444;
+            --accent: #ff3e3e;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            image-rendering: pixelated;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 15px;
+            background: var(--panel);
+            padding: 12px;
+            border: 4px solid #333;
+        }
+
+        .btn {
+            background: #111;
+            border: 2px solid #444;
+            color: #888;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .btn:hover, .btn.active { background: var(--accent); color: #fff; border-color: #fff; }
+
+        /* Piksel Surat */
+        #pixel-face {
+            width: 40px;
+            height: 40px;
+            background: #ffcc00;
+            border: 4px solid #b38f00;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .p-eye { position: absolute; width: 6px; height: 6px; background: #000; top: 10px; }
+        .p-eye.l { left: 8px; }
+        .p-eye.r { right: 8px; }
+        .p-mouth { position: absolute; width: 18px; height: 4px; background: #000; bottom: 10px; left: 11px; }
+
+        /* ÖLÜM ANİMASYONU: Alaycı Gülüş */
+        .dead .p-eye { background: transparent; }
+        .dead .p-eye::before, .dead .p-eye::after {
+            content: ''; position: absolute; width: 6px; height: 2px; background: #000; top: 2px;
+        }
+        .dead .p-eye::before { transform: rotate(45deg); }
+        .dead .p-eye::after { transform: rotate(-45deg); }
+        
+        .dead .p-mouth { 
+            height: 8px; width: 22px; left: 9px; 
+            border-radius: 0 0 10px 10px; 
+            animation: laugh 0.1s infinite;
+        }
+
+        @keyframes laugh {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-2px); }
+        }
+
+        #grid {
+            display: grid;
+            gap: 2px;
+            background: #000;
+            padding: 4px;
+            border: 4px solid #333;
+            max-width: 95vw;
+            max-height: 80vh;
+            overflow: auto;
+        }
+
+        .cell {
+            width: 24px;
+            height: 24px;
+            background: var(--cell-off);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .cell.open { background: var(--cell-on); cursor: default; }
+        .cell.mine { background: var(--accent); }
+        .c1 { color: #00d9ff; } .c2 { color: #00ff44; } .c3 { color: #ff3333; }
+
+        .p-bomb { width: 10px; height: 10px; background: #000; border: 1px solid #fff; }
+        .p-flag { width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 10px solid #ff3e3e; }
+    </style>
 </head>
 <body>
 
-    <div id="preloader">
-        <div class="preloader-content">
-            <div class="preloader-logo">FIVE NIGHTS<br>AT EPSTEIN'S</div>
-            <div class="preloader-spinner">
-                <div class="spinner-ring"></div>
-                <div class="spinner-ring"></div>
-                <div class="spinner-ring"></div>
-            </div>
-            <div class="preloader-text">LOADING<span class="loading-dots">...</span></div>
-            <div class="preloader-progress">
-                <div class="progress-bar" id="progress-bar"></div>
-            </div>
-            <div class="preloader-percentage" id="preloader-percentage">0%</div>
+    <div class="controls">
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+            <button class="btn" onclick="game(8, 8, this)">KOLAY</button>
+            <button class="btn" onclick="game(10, 15, this)">ORTA</button>
+        </div>
+
+        <div id="pixel-face" onclick="reset()">
+            <div class="p-eye l"></div>
+            <div class="p-eye r"></div>
+            <div class="p-mouth"></div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+            <button class="btn" onclick="game(20, 60, this)">ZOR</button>
+            <button class="btn" onclick="game(30, 150, this)">İMKANSIZ</button>
         </div>
     </div>
 
-    <div id="game-container">
-   
-        <div id="game-screen">
-            <img id="current-scene" src="" alt="" style="display: none;">
-            
-       
-            <div id="hotspots"></div>
-            
-      
-            <div id="ui-overlay">
-            
-                <div id="top-left-ui">
-                    <div id="time-display"><span id="time-value">12 AM</span></div>
-                    <div id="night-display">NIGHT <span id="night-value">1</span></div>
-                </div>
-                
-         
-                <div id="bottom-right-ui">
-                    <div id="oxygen-display">
-                        <img src="assets/images/fa3.png" alt="Vent" class="vent-icon">
-                        <span id="power-value">100</span><span class="percent-sign">%</span><span class="oxygen-unit">O<sub>2</sub></span>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div id="grid"></div>
 
+<script>
+    let s, m, board, over, lastBtn;
 
-        <div id="camera-panel" class="hidden">
-            <div id="current-cam-label">CAM 11</div>
-            <div id="camera-error-label">ERR</div>
-  
-            <div id="character-overlay"></div>
-            <div id="camera-grid"></div>
-            <button id="shock-hawking-btn">ELECTROCUTE</button>
-            <button id="play-sound-btn">PLAY SOUND</button>
-       
-            <video id="camera-static-video" loop muted playsinline>
-                <source src="assets/vedio/202512191935.webm" type="video/webm">
-            </video>
-        </div>
+    function reset() { game(s, m, lastBtn); }
 
+    function game(size, mines, btn) {
+        s = size; m = mines; over = false;
+        if(lastBtn) lastBtn.classList.remove('active');
+        lastBtn = btn; if(btn) btn.classList.add('active');
 
-        <div id="cutscene" class="hidden">
-            <img src="assets/images/cutscene.png" alt="Cutscene">
-            <div class="cutscene-hint">Click to continue...</div>
-        </div>
+        document.getElementById('pixel-face').className = "";
+        const g = document.getElementById('grid');
+        g.style.gridTemplateColumns = `repeat(${s}, 24px)`;
+        g.innerHTML = '';
 
-  
-        <div id="night-intro" class="hidden">
-            <div id="night-intro-text">NIGHT 1</div>
-        </div>
+        board = Array.from({length: s}, () => Array(s).fill(null).map(() => ({ m: false, o: false, f: false, n: 0 })));
 
+        let c = 0;
+        while(c < m) {
+            let r = Math.floor(Math.random()*s), l = Math.floor(Math.random()*s);
+            if(!board[r][l].m) { board[r][l].m = true; c++; }
+        }
 
-        <div id="main-menu">
-            <img id="star-icon" class="hidden" src="assets/images/star.png" alt="Star">
-            <img id="star-icon-2" class="hidden" src="assets/images/star.png" alt="Star 2">
-            <h1>FIVE<br>NIGHTS<br>AT<br>EPSTEIN'S</h1>
-            <button id="start-game">NEW GAME</button>
-            <button id="continue-game" class="hidden">CONTINUE</button>
-            <button id="special-night-btn" class="hidden">EPSTEIN'S SPECIAL NIGHT</button>
-            <div class="copyright">© EVAN PRODUCTIONS</div>
-            <div class="version">v1.1.5</div>
-        </div>
-        
-    
-        <canvas id="static-canvas"></canvas>
-        
- 
-        <audio id="menu-music" loop>
-            <source src="assets/sounds/music3.ogg" type="audio/ogg">
-        </audio>
+        for(let i=0; i<s; i++) {
+            for(let j=0; j<s; j++) {
+                if(board[i][j].m) continue;
+                let n = 0;
+                for(let x=-1; x<=1; x++) {
+                    for(let y=-1; y<=1; y++) {
+                        if(board[i+x]?.[j+y]?.m) n++;
+                    }
+                }
+                board[i][j].n = n;
+            }
+        }
 
-    
-        <div id="game-over" class="hidden">
-         
-            <video id="game-over-static" loop muted playsinline autoplay>
-                <source src="assets/vedio/202512191935.webm" type="video/webm">
-            </video>
-            <div id="game-over-content">
-                <h2 id="game-over-text"></h2>
-                <p id="game-over-subtitle" class="hidden"></p>
-                <button id="restart">Restart</button>
-                <button id="main-menu-btn">Main Menu</button>
-            </div>
-        </div>
+        for(let i=0; i<s; i++) {
+            for(let j=0; j<s; j++) {
+                const d = document.createElement('div');
+                d.className = 'cell';
+                d.id = `c-${i}-${j}`;
+                d.onclick = () => reveal(i, j);
+                d.oncontextmenu = (e) => { e.preventDefault(); flag(i, j); };
+                g.appendChild(d);
+            }
+        }
+    }
 
-       
-        <div id="tutorial-overlay" class="hidden">
-            <div id="tutorial-content">
-                <h2>DEFEND YOURSELF AGAINST EPSTEIN</h2>
-                <p>
-                    EPSTEIN ALWAYS STARTS AT CAM 11. USE THE CAMERA'S AUDIO LURE TO KEEP EPSTEIN FAR AWAY FROM YOU. 
-                    MAKE SURE THE CAMERA YOU'RE PLAYING THE SOUND IN IS NEXT TO THE CAMERA WHERE EPSTEIN IS. 
-                    PLAYING SOUND IN ONLY ONE SPOT WILL NOT WORK IF YOU DO IT TWICE OR MORE IN A ROW. 
-                    USING THE AUDIO LURE TOO MUCH WILL LEAD TO THE CAMERAS BREAKING. 
-                    TO FIX THEM HEAD TO THE CONTROL PANEL AND RESTART THE CAMERAS LIKE YOU JUST DID. 
-                    EPSTEIN DOES NOT ATTACK THROUGH THE VENTS SO DON'T BOTHER CLOSING THEM FOR THIS NIGHT.
-                </p>
-                <button id="tutorial-got-it">GOT IT</button>
-            </div>
-        </div>
-    </div>
+    function reveal(r, c) {
+        if(over || !board[r]?.[c] || board[r][c].o || board[r][c].f) return;
+        const cell = board[r][c];
+        const el = document.getElementById(`c-${r}-${c}`);
+        cell.o = true; el.classList.add('open');
 
-    <script src="js/GameState.js"></script>
-    <script src="js/AssetManager.js"></script>
-    <script src="js/UIManager.js"></script>
-    <script src="js/CameraSystem.js"></script>
-    <script src="js/EnemyAI.js"></script>
-    <script src="js/InputHandler.js"></script>
-    <script src="js/StaticNoise.js"></script>
-    <script src="js/ScaryFaceFlicker.js"></script>
-    <script src="js/Game.js"></script>
-    <script src="js/main.js"></script>
+        if(cell.m) {
+            over = true;
+            document.getElementById('pixel-face').classList.add('dead');
+            board.forEach((row, ri) => row.forEach((ci, col) => {
+                if(ci.m) document.getElementById(`c-${ri}-${col}`).innerHTML = '<div class="p-bomb"></div>';
+            }));
+            return;
+        }
 
+        if(cell.n > 0) {
+            el.innerText = cell.n;
+            el.classList.add('c' + cell.n);
+        } else {
+            for(let x=-1; x<=1; x++) {
+                for(let y=-1; y<=1; y++) reveal(r+x, c+y);
+            }
+        }
+    }
+
+    function flag(r, c) {
+        if(over || board[r][c].o) return;
+        board[r][c].f = !board[r][c].f;
+        document.getElementById(`c-${r}-${c}`).innerHTML = board[r][c].f ? '<div class="p-flag"></div>' : '';
+    }
+
+    game(8, 8); // Başlangıç
+</script>
 </body>
 </html>
