@@ -6,14 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     <link rel="icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTo-MxQMBxtjT4lTIt5NpIID2njAAk813g7Bw&s" />
     
+    <!-- Flappy Bird Stili Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
     <style>
         body, html { 
             margin: 0; padding: 0; width: 100%; height: 100%; 
             background: #000; overflow: hidden; 
             display: flex; justify-content: center; align-items: center;
+            font-family: 'Press Start 2P', cursive; /* Fontu tüm sayfaya yaydık */
         }
         canvas {
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-crisp-edges;
             image-rendering: pixelated;
+            image-rendering: crisp-edges;
             width: 100vw; 
             height: 100vh;
             display: block;
@@ -31,23 +38,20 @@ const ctx = canvas.getContext("2d");
 function resize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    // Çözünürlük değişince fontun keskin kalması için tekrar render tetiklenebilir
 }
 window.addEventListener('resize', resize);
 resize();
 
 // Oyun Ayarları
-let gravity = 0.28;
-let jump = -4.8;
-let pipeWidth = 52; // Görsel genişliği ile uyumlu
-let pipeGap = 160;
-let pipeSpeed = 2.5;
+let gravity = 0.25;
+let jump = -5.2;
+let pipeWidth = 64; 
+let pipeGap = 170;
+let pipeSpeed = 3;
 let score = 0;
 let gameActive = false;
 let gameOver = false;
-
-// Sesler
-const jumpSound = new Audio("https://www.soundjay.com/buttons/sounds/button-27.mp3");
-const hitSound = new Audio("https://www.soundjay.com/buttons/sounds/button-10.mp3");
 
 // Görseller
 const birdImg = new Image();
@@ -57,13 +61,15 @@ const bgImg = new Image();
 bgImg.src = "http://s2js.com/img/etc/flappyback.png";
 
 const pipeImg = new Image();
-pipeImg.src = "http://s2js.com/img/etc/flappypipe.png"; // Yeni boru görseli
+pipeImg.src = "http://s2js.com/img/etc/flappypipe.png"; 
 
-let bird = { x: 80, y: canvas.height / 2, w: 40, h: 30, velocity: 0, rotation: 0 };
+let bird = { x: 80, y: canvas.height / 2, w: 44, h: 32, velocity: 0, rotation: 0 };
 let pipes = [];
 
 function createPipe() {
-    let topPipeHeight = Math.random() * (canvas.height - pipeGap - 150) + 75;
+    let minPipeHeight = 100;
+    let maxPipeHeight = canvas.height - pipeGap - 100;
+    let topPipeHeight = Math.random() * (maxPipeHeight - minPipeHeight) + minPipeHeight;
     pipes.push({ x: canvas.width, y: topPipeHeight, passed: false });
 }
 
@@ -79,39 +85,36 @@ function resetGame() {
 
 function input() {
     if (gameOver) {
-        if (bird.y + bird.h >= canvas.height - 10) resetGame();
+        if (bird.y + bird.h >= canvas.height - 50) resetGame();
     } else if (!gameActive) {
         gameActive = true;
         bird.velocity = jump;
-        jumpSound.play().catch(()=>{});
     } else {
         bird.velocity = jump;
-        jumpSound.currentTime = 0;
-        jumpSound.play().catch(()=>{});
     }
 }
 
 window.addEventListener('mousedown', input);
+window.addEventListener('touchstart', (e) => { e.preventDefault(); input(); }, {passive: false});
 window.addEventListener('keydown', (e) => { if(e.code === "Space" || e.code === "ArrowUp") input(); });
-
-document.addEventListener('keydown', (e) => {
-    if (e.shiftKey && e.key === "$") window.location.href = "index.html";
-});
 
 function update() {
     if (gameActive) {
         bird.velocity += gravity;
         bird.y += bird.velocity;
-        bird.rotation = Math.min(Math.PI / 2, Math.max(-Math.PI / 4, (bird.velocity * 0.15)));
+        bird.rotation = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, (bird.velocity * 0.1)));
 
-        if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 320) createPipe();
+        if (pipes.length === 0 || pipes[pipes.length - 1].x < canvas.width - 280) createPipe();
 
         pipes.forEach((pipe, index) => {
             pipe.x -= pipeSpeed;
-            if (bird.x < pipe.x + pipeWidth && bird.x + bird.w > pipe.x &&
-                (bird.y < pipe.y || bird.y + bird.h > pipe.y + pipeGap)) endGame();
+            
+            // Çarpışma (Hitbox biraz daraltıldı daha adil olması için)
+            if (bird.x + 5 < pipe.x + pipeWidth && bird.x + bird.w - 5 > pipe.x &&
+                (bird.y + 5 < pipe.y || bird.y + bird.h - 5 > pipe.y + pipeGap)) endGame();
+
             if (!pipe.passed && pipe.x < bird.x) { score++; pipe.passed = true; }
-            if (pipe.x + pipeWidth < 0) pipes.splice(index, 1);
+            if (pipe.x + pipeWidth < -100) pipes.splice(index, 1);
         });
 
         if (bird.y + bird.h > canvas.height || bird.y < 0) endGame();
@@ -126,7 +129,6 @@ function update() {
 
 function endGame() {
     if (!gameOver) {
-        hitSound.play().catch(()=>{});
         gameActive = false;
         gameOver = true;
     }
@@ -134,62 +136,68 @@ function endGame() {
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Arkaplan
     ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
 
     pipes.forEach(pipe => {
-        // Üst Boruyu Çiz (Ters çevrilmiş şekilde)
+        // Üst Boru (Ters)
         ctx.save();
         ctx.translate(pipe.x + pipeWidth / 2, pipe.y / 2);
         ctx.scale(1, -1);
         ctx.drawImage(pipeImg, -pipeWidth / 2, -pipe.y / 2, pipeWidth, pipe.y);
         ctx.restore();
 
-        // Alt Boruyu Çiz
+        // Alt Boru
         ctx.drawImage(pipeImg, pipe.x, pipe.y + pipeGap, pipeWidth, canvas.height - (pipe.y + pipeGap));
     });
 
-    // Kuşu çiz
+    // Kuş
     ctx.save();
     ctx.translate(bird.x + bird.w / 2, bird.y + bird.h / 2);
     ctx.rotate(bird.rotation);
     ctx.drawImage(birdImg, -bird.w / 2, -bird.h / 2, bird.w, bird.h);
     ctx.restore();
 
+    // UI Yazıları
     ctx.fillStyle = "white";
     ctx.strokeStyle = "black";
+    ctx.lineWidth = 6;
     ctx.textAlign = "center";
     
     if (!gameActive && !gameOver) {
-        ctx.font = "bold 45px 'Courier New'";
-        ctx.strokeText("CODECULATION", canvas.width / 2, canvas.height / 2 - 40);
-        ctx.fillText("CODECULATION", canvas.width / 2, canvas.height / 2 - 40);
-        ctx.font = "22px 'Courier New'";
-        ctx.fillText("BAŞLAMAK İÇİN DOKUN", canvas.width / 2, canvas.height / 2 + 20);
+        ctx.font = "20px 'Press Start 2P'";
+        ctx.strokeText("CODECULATION", canvas.width / 2, canvas.height / 2 - 50);
+        ctx.fillText("CODECULATION", canvas.width / 2, canvas.height / 2 - 50);
+        ctx.font = "12px 'Press Start 2P'";
+        ctx.fillText("BAŞLAMAK İÇİN DOKUN", canvas.width / 2, canvas.height / 2 + 30);
     }
 
     if (gameActive || gameOver) {
-        ctx.font = "bold 70px 'Courier New'";
+        ctx.font = "40px 'Press Start 2P'";
         ctx.strokeText(score, canvas.width / 2, 100);
         ctx.fillText(score, canvas.width / 2, 100);
     }
 
     if (gameOver) {
-        ctx.font = "bold 40px 'Courier New'";
+        ctx.font = "16px 'Press Start 2P'";
         ctx.fillStyle = "#FF3131";
         ctx.strokeText("BAĞLANTI KESİLDİ", canvas.width / 2, canvas.height / 2);
         ctx.fillText("BAĞLANTI KESİLDİ", canvas.width / 2, canvas.height / 2);
-        ctx.font = "18px 'Courier New'";
+        ctx.font = "10px 'Press Start 2P'";
         ctx.fillStyle = "white";
-        ctx.fillText("Yeniden Başlamak İçin Tıkla", canvas.width / 2, canvas.height / 2 + 50);
+        ctx.fillText("TEKRAR DENEMEK İÇİN TIKLA", canvas.width / 2, canvas.height / 2 + 60);
     }
 
-    requestAnimationFrame(() => {
-        update();
-        draw();
-    });
+    requestAnimationFrame(updateAndDraw);
 }
 
-draw();
+function updateAndDraw() {
+    update();
+    draw();
+}
+
+updateAndDraw();
 </script>
 </body>
 </html>
